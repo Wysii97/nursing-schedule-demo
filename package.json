@@ -1,9 +1,8 @@
 {
   "name": "nursing-schedule-system",
   "private": true,
+  "homepage": "https://Wysii97.github.io/nursing-schedule-demo/",
   "version": "0.0.0",
-  "type": "module",
-  "homepage": "https://<USERNAME>.github.io/<REPO_NAME>",
   "scripts": {
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
