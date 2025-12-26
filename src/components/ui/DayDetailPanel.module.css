@@ -1,0 +1,184 @@
+.panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    min-width: 320px;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--border);
+}
+
+.dateInfo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.dateTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0;
+}
+
+.dateWeekday {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.closeBtn {
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+}
+
+.closeBtn:hover {
+    background: var(--bg-app);
+    color: var(--text-main);
+}
+
+/* My Shift Section */
+.myShiftSection {
+    margin-bottom: var(--spacing-lg);
+}
+
+.sectionLabel {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--spacing-sm);
+}
+
+.myShiftBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    color: white;
+}
+
+.shiftCode {
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+.shiftName {
+    font-size: 0.875rem;
+}
+
+/* Staff Section */
+.staffSection {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.shiftGroup {
+    background: var(--bg-app);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+}
+
+.shiftGroupHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+    font-size: 0.8125rem;
+}
+
+.shiftIndicator {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+}
+
+.shiftGroupName {
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+.shiftTime {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}
+
+.staffCount {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    background: var(--bg-card);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+}
+
+.staffList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.staffItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
+}
+
+.staffInfo {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.staffName {
+    font-size: 0.875rem;
+    color: var(--text-main);
+}
+
+.staffLevel {
+    font-size: 0.6875rem;
+    color: var(--text-secondary);
+    background: var(--bg-app);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+}
+
+.swapBtn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.6875rem;
+    color: var(--primary);
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: var(--radius-sm);
+    transition: all 0.15s;
+}
+
+.swapBtn:hover {
+    background: var(--primary);
+    color: white;
+}

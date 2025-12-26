@@ -1,0 +1,46 @@
+.statCard {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.statContent h3 {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xs);
+    font-weight: 400;
+}
+
+.statValue {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.statIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.statIcon.blue {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--primary);
+}
+
+.statIcon.yellow {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning);
+}
+
+.statIcon.red {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+}

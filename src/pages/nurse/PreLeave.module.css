@@ -1,0 +1,290 @@
+.pageContainer {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: var(--spacing-xl);
+}
+
+.mainContent {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.pageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.pageTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: var(--spacing-xs);
+}
+
+.pageDescription {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.quotaBadge {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Sidebar Panel */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.sidebarCard {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.dateHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.selectedDate {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.lotteryTag {
+    background: var(--danger);
+    color: white;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+}
+
+.dateMeta {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-lg);
+}
+
+.formGroup {
+    margin-bottom: var(--spacing-lg);
+}
+
+.formLabel {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-main);
+    margin-bottom: var(--spacing-sm);
+}
+
+.typeButtons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-sm);
+}
+
+.typeButton {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+.typeButton:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.typeButton.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.selectInput {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    background: var(--bg-card);
+    color: var(--text-main);
+}
+
+.textareaInput {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    min-height: 80px;
+    resize: vertical;
+}
+
+.submitButton {
+    width: 100%;
+    padding: var(--spacing-md);
+    background: var(--primary);
+    color: white;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.submitButton:hover {
+    background: var(--primary-hover);
+}
+
+/* Quota Card */
+.quotaCard {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.quotaHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+.quotaItem {
+    margin-bottom: var(--spacing-md);
+}
+
+.quotaLabel {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.quotaValue {
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.quotaBar {
+    height: 8px;
+    background: var(--bg-app);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.quotaProgress {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 0.3s;
+}
+
+/* Request History */
+.historySection {
+    margin-top: var(--spacing-xl);
+}
+
+.historyTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: var(--spacing-lg);
+}
+
+.historyTable {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.historyTable table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.historyTable th {
+    text-align: left;
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--bg-app);
+    border-bottom: 1px solid var(--border);
+}
+
+.historyTable td {
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: 0.875rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.historyTable tr:last-child td {
+    border-bottom: none;
+}
+
+.statusBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.statusBadge.pending {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning);
+}
+
+.statusBadge.approved {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+}
+
+.statusBadge.rejected {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+}
+
+.shiftTag {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.cancelLink {
+    color: var(--danger);
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.cancelLink:hover {
+    text-decoration: underline;
+}

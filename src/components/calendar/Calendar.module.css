@@ -1,0 +1,160 @@
+.calendarContainer {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.calendarHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.monthNav {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.monthTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    min-width: 140px;
+    text-align: center;
+}
+
+.navButton {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+}
+
+.navButton:hover {
+    background: var(--bg-app);
+    color: var(--text-main);
+}
+
+.legend {
+    display: flex;
+    gap: var(--spacing-lg);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.legendDot {
+    width: 10px;
+    height: 10px;
+    border-radius: var(--radius-full);
+}
+
+.calendarGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.weekdayHeader {
+    background: var(--bg-app);
+    padding: var(--spacing-sm);
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.dayCell {
+    background: var(--bg-card);
+    min-height: 80px;
+    padding: var(--spacing-sm);
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.dayCell:hover {
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.dayCell.otherMonth {
+    background: var(--bg-app);
+    color: var(--text-secondary);
+    opacity: 0.5;
+}
+
+.dayCell.today {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.dayCell.selected {
+    background: rgba(59, 130, 246, 0.15);
+}
+
+.dayNumber {
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: var(--spacing-xs);
+}
+
+.dayCell.today .dayNumber {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.dayTags {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.dayTag {
+    font-size: 0.625rem;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dayTag.leave {
+    background: rgba(168, 85, 247, 0.2);
+    color: #7c3aed;
+}
+
+.dayTag.shift {
+    background: rgba(59, 130, 246, 0.2);
+    color: var(--primary);
+}
+
+.dayTag.lottery {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+}
+
+.lotteryBadge {
+    position: absolute;
+    top: var(--spacing-xs);
+    right: var(--spacing-xs);
+    background: var(--danger);
+    color: white;
+    font-size: 0.625rem;
+    padding: 2px 4px;
+    border-radius: var(--radius-sm);
+}

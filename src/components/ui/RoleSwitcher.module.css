@@ -1,0 +1,48 @@
+.container {
+    position: fixed;
+    bottom: var(--spacing-md);
+    left: var(--spacing-md);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-sm) var(--spacing-md);
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+}
+
+.label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: 0.625rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.buttons {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.roleBtn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.6875rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    background: var(--bg-app);
+    transition: all 0.15s;
+}
+
+.roleBtn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.roleBtn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}

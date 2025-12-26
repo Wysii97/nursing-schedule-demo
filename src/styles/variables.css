@@ -1,0 +1,43 @@
+:root {
+  /* Brand Colors */
+  --primary: #3B82F6;
+  --primary-hover: #2563EB;
+  --secondary: #64748B;
+  
+  /* Shift Colors */
+  --shift-day: #3B82F6;    /* D */
+  --shift-eve: #F59E0B;    /* E */
+  --shift-ngt: #6366F1;    /* N */
+  --shift-off: #F43F5E;    /* OFF */
+  --shift-std: #14B8A6;    /* 8-8 etc */
+
+  /* Neutral Colors */
+  --bg-app: #F3F4F6;
+  --bg-card: #FFFFFF;
+  --text-main: #1F2937;
+  --text-secondary: #6B7280;
+  --border: #E5E7EB;
+
+  /* Status Colors */
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+
+  /* Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
