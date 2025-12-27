@@ -184,10 +184,24 @@
     display: flex;
     align-items: center;
     gap: 1rem;
+    flex: 1;
+    justify-content: flex-end;
+}
+
+.historyMeta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
 }
 
 .historyType {
     font-weight: 500;
+}
+
+.historyReason {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
 }
 
 .historyStatus {

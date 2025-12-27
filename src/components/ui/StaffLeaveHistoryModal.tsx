@@ -127,7 +127,10 @@ const StaffLeaveHistoryModal: React.FC<StaffLeaveHistoryModalProps> = ({
                                                     </span>
                                                 </div>
                                                 <div className={styles.historyDetail}>
-                                                    <span className={styles.historyType}>{record.leaveType}</span>
+                                                    <div className={styles.historyMeta}>
+                                                        <span className={styles.historyType}>{record.leaveType}</span>
+                                                        {record.reason && <span className={styles.historyReason}>{record.reason}</span>}
+                                                    </div>
                                                     <span className={styles.historyStatus} data-status={record.status}>
                                                         {record.status === 'approved' ? '已核准' :
                                                             record.status === 'pending' ? '待審核' :

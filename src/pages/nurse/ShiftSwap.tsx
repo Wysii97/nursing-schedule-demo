@@ -140,10 +140,10 @@ const ShiftSwap: React.FC = () => {
     const renderRequestRow = (req: SwapRequest, showActions: 'target' | 'admin' | null = null) => (
         <tr key={req.id}>
             <td>{format(new Date(req.swapDate), 'M/d (E)', { locale: zhTW })}</td>
-            <td>{req.requesterName}</td>
-            <td>{req.requesterShift} ↔ {req.targetShift}</td>
-            <td>{req.targetName}</td>
-            <td>{renderStatus(req.status)}</td>
+            <td data-label="申請者">{req.requesterName}</td>
+            <td data-label="班別交換">{req.requesterShift} ↔ {req.targetShift}</td>
+            <td data-label="對象">{req.targetName}</td>
+            <td data-label="狀態">{renderStatus(req.status)}</td>
             <td>
                 {showActions === 'target' && (
                     <div className={styles.actions}>
