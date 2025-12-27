@@ -6,8 +6,9 @@ import styles from './Calendar.module.css';
 
 interface DayData {
     date: Date;
-    tags?: { type: 'leave' | 'shift' | 'lottery'; label: string; color?: string }[];
+    tags?: { type: string; label: string; color?: string; isMine?: boolean }[];
     needsLottery?: boolean;
+    tooltips?: string[];
 }
 
 interface CalendarProps {
@@ -82,6 +83,10 @@ const Calendar: React.FC<CalendarProps> = ({
                     <div className={styles.legendItem}>
                         <span className={styles.legendDot} style={{ background: '#EF4444' }}></span>
                         需抽籤
+                        <div className={styles.legendItem}>
+                            <span className={styles.legendDot} style={{ background: '#94A3B8' }}></span>
+                            同事預假
+                        </div>
                     </div>
                 </div>
             </div>
@@ -106,6 +111,7 @@ const Calendar: React.FC<CalendarProps> = ({
                     ${isToday(d) ? styles.today : ''} 
                     ${isSelected ? styles.selected : ''}`}
                                     onClick={() => isCurrentMonth && onDateSelect(d)}
+                                    title={dayData?.tooltips?.join('\n')}
                                 >
                                     <div className={styles.dayNumber}>{format(d, 'd')}</div>
                                     {dayData?.needsLottery && (
@@ -113,7 +119,7 @@ const Calendar: React.FC<CalendarProps> = ({
                                     )}
                                     {dayData?.tags && (
                                         <div className={styles.dayTags}>
-                                            {dayData.tags.map((tag: { type: 'leave' | 'shift' | 'lottery'; label: string; color?: string }, ti: number) => (
+                                            {dayData.tags.map((tag: { type: string; label: string; color?: string; isMine?: boolean }, ti: number) => (
                                                 <span
                                                     key={ti}
                                                     className={`${styles.dayTag} ${styles[tag.type]}`}

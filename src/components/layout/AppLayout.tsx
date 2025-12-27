@@ -1,6 +1,8 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Plus, Bell, ChevronDown } from 'lucide-react';
+import { useState } from 'react';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Plus, Bell, ChevronDown, AlertTriangle, ArrowRightLeft, Info } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useNotifications } from '../../context/NotificationContext';
 import { ROLE_LABELS } from '../../types';
 import UnitSelector from '../ui/UnitSelector';
 import RoleSwitcher from '../ui/RoleSwitcher';
@@ -8,13 +10,24 @@ import styles from './Layout.module.css';
 
 const AppLayout: React.FC = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const { currentUser, hasPermission } = useAuth();
+    const { notifications, unreadCount, markAllAsRead } = useNotifications();
+    const [showNotifications, setShowNotifications] = useState(false);
 
     // Check if current path is in settings section
     const isSettingsActive = location.pathname.startsWith('/settings');
 
     // Role-based navigation visibility
     const canAccessSettings = hasPermission('view_settings');
+
+    const getNotificationIcon = (type: string) => {
+        switch (type) {
+            case 'swap_pending': return <ArrowRightLeft size={14} />;
+            case 'warning': return <AlertTriangle size={14} />;
+            default: return <Info size={14} />;
+        }
+    };
 
     return (
         <div className={styles.appContainer}>
@@ -55,6 +68,14 @@ const AppLayout: React.FC = () => {
                             className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
                         >
                             預假申請
+                        </NavLink>
+
+                        {/* 換班管理 - visible to all */}
+                        <NavLink
+                            to="/nurse/swap"
+                            className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
+                        >
+                            換班管理
                         </NavLink>
 
                         {/* 排班管理 - only for deputy and manager */}
@@ -98,10 +119,53 @@ const AppLayout: React.FC = () => {
                     <UnitSelector />
 
                     {/* Notifications */}
-                    <button className={styles.notificationBtn}>
-                        <Bell size={20} />
-                        <span className={styles.notificationDot}></span>
-                    </button>
+                    <div className={styles.notificationWrapper}>
+                        <button
+                            className={styles.notificationBtn}
+                            onClick={() => setShowNotifications(!showNotifications)}
+                        >
+                            <Bell size={20} />
+                            {unreadCount > 0 && (
+                                <span className={styles.notificationBadge}>{unreadCount}</span>
+                            )}
+                        </button>
+
+                        {showNotifications && (
+                            <div className={styles.notificationDropdown}>
+                                <div className={styles.notificationHeader}>
+                                    <span>通知</span>
+                                    {unreadCount > 0 && (
+                                        <button onClick={markAllAsRead}>全部已讀</button>
+                                    )}
+                                </div>
+                                <div className={styles.notificationList}>
+                                    {notifications.length === 0 ? (
+                                        <div className={styles.noNotifications}>目前沒有通知</div>
+                                    ) : (
+                                        notifications.map(n => (
+                                            <div
+                                                key={n.id}
+                                                className={`${styles.notificationItem} ${!n.read ? styles.unread : ''}`}
+                                                onClick={() => {
+                                                    if (n.link) navigate(n.link);
+                                                    setShowNotifications(false);
+                                                }}
+                                            >
+                                                <div className={styles.notificationIcon}>
+                                                    {getNotificationIcon(n.type)}
+                                                </div>
+                                                <div className={styles.notificationContent}>
+                                                    <div className={styles.notificationTitle}>{n.title}</div>
+                                                    <div className={styles.notificationMessage}>{n.message}</div>
+                                                    <div className={styles.notificationTime}>{n.time}</div>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
 
                     {/* User Info */}
                     <div className={styles.userInfo}>

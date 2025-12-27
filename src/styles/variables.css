@@ -3,13 +3,18 @@
   --primary: #3B82F6;
   --primary-hover: #2563EB;
   --secondary: #64748B;
-  
+
   /* Shift Colors */
-  --shift-day: #3B82F6;    /* D */
-  --shift-eve: #F59E0B;    /* E */
-  --shift-ngt: #6366F1;    /* N */
-  --shift-off: #F43F5E;    /* OFF */
-  --shift-std: #14B8A6;    /* 8-8 etc */
+  --shift-day: #3B82F6;
+  /* D */
+  --shift-eve: #F59E0B;
+  /* E */
+  --shift-ngt: #6366F1;
+  /* N */
+  --shift-off: #F43F5E;
+  /* OFF */
+  --shift-std: #14B8A6;
+  /* 8-8 etc */
 
   /* Neutral Colors */
   --bg-app: #F3F4F6;
@@ -17,6 +22,13 @@
   --text-main: #1F2937;
   --text-secondary: #6B7280;
   --border: #E5E7EB;
+
+  /* Additional UI Colors (for modals/components) */
+  --surface: #FFFFFF;
+  --background: #F3F4F6;
+  --text-primary: #1F2937;
+  --hover: rgba(0, 0, 0, 0.05);
+  --error: #EF4444;
 
   /* Status Colors */
   --success: #10B981;

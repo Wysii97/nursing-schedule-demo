@@ -6,7 +6,8 @@ import type { Staff } from '../types';
 export const generateAutoSchedule = (
     currentSchedule: Map<string, string>,
     staffList: Staff[],
-    monthDate: Date
+    monthDate: Date,
+    leaveRequests: any[] = []
 ): { newSchedule: Map<string, string>; filledCount: number } => {
     const schedule = new Map(currentSchedule);
     const monthStart = startOfMonth(monthDate);
@@ -45,8 +46,18 @@ export const generateAutoSchedule = (
 
                 // Find best candidate
                 staffList.forEach(s => {
+                    const scheduleKey = `${s.id}-${dateStr}`;
+
                     // Skip if already assigned today
-                    if (schedule.has(`${s.id}-${dateStr}`) && schedule.get(`${s.id}-${dateStr}`) !== 'OFF') return;
+                    if (schedule.has(scheduleKey) && schedule.get(scheduleKey) !== 'OFF') return;
+
+                    // Skip if staff has approved leave
+                    const hasApprovedLeave = leaveRequests.some(l =>
+                        l.staffId === s.id &&
+                        l.date === dateStr &&
+                        l.status === 'approved'
+                    );
+                    if (hasApprovedLeave) return;
 
                     let score = 0;
 

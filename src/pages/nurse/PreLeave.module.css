@@ -203,9 +203,7 @@
 }
 
 /* Request History */
-.historySection {
-    margin-top: var(--spacing-xl);
-}
+
 
 .historyTitle {
     font-size: 1rem;
@@ -287,4 +285,76 @@
 
 .cancelLink:hover {
     text-decoration: underline;
+}
+
+/* Tablet responsive */
+@media (max-width: 1024px) {
+    .pageContainer {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+
+    .sidebar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-md);
+    }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .pageContainer {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-sm);
+    }
+
+    .sidebar {
+        grid-template-columns: 1fr;
+    }
+
+    .pageHeader {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .pageTitle {
+        font-size: 1.25rem;
+    }
+
+    .quotaBadge {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .typeButtons {
+        grid-template-columns: 1fr;
+    }
+
+    .historyTable {
+        overflow-x: auto;
+    }
+
+    .historyTable table {
+        min-width: 500px;
+    }
+
+    .historyTable th,
+    .historyTable td {
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: 0.8125rem;
+    }
+}
+
+/* Extra small mobile */
+@media (max-width: 480px) {
+
+    .sidebarCard,
+    .quotaCard {
+        padding: var(--spacing-md);
+    }
+
+    .submitButton {
+        padding: var(--spacing-sm);
+    }
 }

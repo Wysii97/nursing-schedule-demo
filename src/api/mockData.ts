@@ -51,6 +51,10 @@ export const mockRule: UnitRule = {
     maxLeavePerMonth: 4,
     maxLeavePerDay: 2,
     conflictStrategy: 'Score',
+    preleaveOpenMonth: '2025-02',
+    monthlyPreLeaveLimits: {
+        '2025-02': 2 // Special limit for Feb 2025
+    }
 };
 
 // Leave request types
@@ -73,6 +77,10 @@ export const mockLeaveRequests: LeaveRequest[] = [
     { id: 'LR003', staffId: 'N-1004', staffName: '張家豪', date: '2025-01-05', type: 'shift', shiftCode: 'D', reason: '在職進修課程', status: 'approved', createdAt: '2024-12-19' },
     { id: 'LR004', staffId: 'N-1002', staffName: '林雅婷', date: '2025-01-08', type: 'shift', shiftCode: 'N', reason: '協助換班', status: 'pending', createdAt: '2024-12-22' },
     { id: 'LR005', staffId: 'N-1005', staffName: '李佳穎', date: '2025-01-10', type: 'leave', leaveType: '補休', reason: '個人事務', status: 'rejected', createdAt: '2024-12-18' },
+    // Feb 2025 mock data for testing group calendar
+    { id: 'LR006', staffId: 'N-1004', staffName: '張家豪', date: '2025-02-20', type: 'leave', leaveType: '特休假', reason: '家庭旅遊', status: 'pending', createdAt: '2025-01-15' },
+    { id: 'LR007', staffId: 'N-1005', staffName: '李佳穎', date: '2025-02-20', type: 'leave', leaveType: '事假', reason: '私人行程', status: 'approved', createdAt: '2025-01-16' },
+    { id: 'LR008', staffId: 'N-1006', staffName: '黃詩婷', date: '2025-02-25', type: 'leave', leaveType: '病假', reason: '回診', status: 'pending', createdAt: '2025-01-18' },
 ];
 
 // Schedule data type

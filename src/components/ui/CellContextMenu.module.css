@@ -1,0 +1,105 @@
+.contextMenu {
+    position: fixed;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 0;
+    min-width: 180px;
+    z-index: 1000;
+    font-size: 0.875rem;
+}
+
+.sectionLabel {
+    padding: 0.5rem 1rem 0.25rem 1rem;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.menuItem {
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background 0.2s;
+    position: relative;
+    /* For submenu positioning */
+}
+
+.menuItem:hover {
+    background: var(--bg-hover);
+}
+
+.colorDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.separator {
+    height: 1px;
+    background: var(--border);
+    margin: 0.5rem 0;
+}
+
+.danger {
+    color: var(--danger);
+}
+
+.danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.arrow {
+    margin-left: auto;
+    color: var(--text-tertiary);
+}
+
+/* Submenu */
+.submenu {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 0;
+    min-width: 160px;
+    margin-left: 4px;
+}
+
+.customInputItem {
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: default;
+}
+
+.hoursInput {
+    width: 60px;
+    padding: 2px 4px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.okBtn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.okBtn:hover {
+    background: var(--primary-hover);
+}

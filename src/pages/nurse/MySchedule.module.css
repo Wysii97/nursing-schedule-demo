@@ -404,3 +404,126 @@
     width: 40px;
     text-align: right;
 }
+
+/* Tablet responsive (768px - 1024px) */
+@media (max-width: 1024px) {
+    .pageContainer {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+
+    .leftPanel {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-md);
+    }
+
+    .rightPanel {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-md);
+    }
+
+    .pageHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-md);
+    }
+
+    .headerActions {
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .actionButton {
+        flex: 1;
+        min-width: 120px;
+        justify-content: center;
+    }
+}
+
+/* Mobile responsive (< 768px) */
+@media (max-width: 768px) {
+    .pageContainer {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-sm);
+    }
+
+    .leftPanel {
+        grid-template-columns: 1fr;
+        order: 2;
+    }
+
+    .mainContent {
+        order: 1;
+    }
+
+    .rightPanel {
+        grid-template-columns: 1fr;
+        order: 3;
+    }
+
+    .todayCard,
+    .balanceCard,
+    .noticeCard,
+    .skillMixCard {
+        padding: var(--spacing-md);
+    }
+
+    .pageTitle {
+        font-size: 1.25rem;
+    }
+
+    .headerActions {
+        gap: var(--spacing-xs);
+    }
+
+    .actionButton {
+        padding: var(--spacing-xs) var(--spacing-sm);
+        font-size: 0.8125rem;
+    }
+
+    .shiftBadge {
+        width: 40px;
+        height: 40px;
+    }
+
+    .shiftBadge .code {
+        font-size: 1rem;
+    }
+
+    .calendarHint {
+        font-size: 0.75rem;
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+
+    /* Hide skill mix on mobile to save space */
+    .skillMixCard {
+        display: none;
+    }
+}
+
+/* Extra small mobile (< 480px) */
+@media (max-width: 480px) {
+    .headerActions {
+        flex-direction: column;
+    }
+
+    .actionButton {
+        width: 100%;
+    }
+
+    .balanceItem {
+        flex-wrap: wrap;
+    }
+
+    .balanceLabel {
+        width: 100%;
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .balanceValue {
+        width: auto;
+    }
+}

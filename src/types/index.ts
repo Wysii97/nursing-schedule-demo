@@ -36,7 +36,10 @@ export interface Staff {
 export interface UnitRule {
     maxLeavePerMonth: number;
     maxLeavePerDay: number;
-    conflictStrategy: 'Score' | 'Random'; // 積分 or 抽籤
+    conflictStrategy: 'Score' | 'Random';
+    preleaveOpenMonth?: string;  // Format: '2025-02'
+    preleaveDeadline?: string;   // Format: '2025-01-20'
+    monthlyPreLeaveLimits?: Record<string, number>; // Key: 'YYYY-MM', Value: limit per person
 }
 
 export interface ApiResponse<T> {

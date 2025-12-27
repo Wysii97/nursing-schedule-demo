@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import type { Staff, Unit, Permission } from '../types';
 import { ROLE_PERMISSIONS } from '../types';
-import { testUsers, mockUnits } from '../api/mockData';
+import { mockUnits } from '../api/mockData';
+import { staffApi } from '../api/client';
 
 interface AuthContextType {
     currentUser: Staff | null;
@@ -11,14 +12,30 @@ interface AuthContextType {
     hasPermission: (permission: Permission) => boolean;
     canManageMultipleUnits: boolean;
     availableUnits: Unit[];
+    isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    // Default to manager for demo
-    const [currentUser, setCurrentUserState] = useState<Staff>(testUsers[0]);
+    const [currentUser, setCurrentUserState] = useState<Staff | null>(null);
     const [currentUnit, setCurrentUnit] = useState<Unit>(mockUnits[0]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Load current user from API on mount
+    useEffect(() => {
+        const loadUser = async () => {
+            const res = await staffApi.getCurrent();
+            if (res.success) {
+                setCurrentUserState(res.data);
+                // Set default unit based on user's department
+                const userUnit = mockUnits.find(u => u.id === res.data.departmentId);
+                if (userUnit) setCurrentUnit(userUnit);
+            }
+            setIsLoading(false);
+        };
+        loadUser();
+    }, []);
 
     const setCurrentUser = (user: Staff) => {
         setCurrentUserState(user);
@@ -60,7 +77,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             switchUnit,
             hasPermission,
             canManageMultipleUnits,
-            availableUnits
+            availableUnits,
+            isLoading
         }}>
             {children}
         </AuthContext.Provider>

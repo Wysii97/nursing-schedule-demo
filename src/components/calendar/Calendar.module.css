@@ -158,3 +158,60 @@
     padding: 2px 4px;
     border-radius: var(--radius-sm);
 }
+
+.dayTag.group-leave {
+    background: rgba(100, 116, 139, 0.1);
+    color: #475569;
+    font-size: 0.625rem;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .calendarContainer {
+        padding: var(--spacing-md);
+    }
+
+    .calendarHeader {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        align-items: flex-start;
+    }
+
+    .monthNav {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .legend {
+        flex-wrap: wrap;
+        gap: var(--spacing-sm) var(--spacing-md);
+    }
+
+    .dayCell {
+        min-height: 50px;
+        padding: 4px;
+    }
+
+    .dayNumber {
+        font-size: 0.75rem;
+        margin-bottom: 2px;
+    }
+
+    /* Compact tags on mobile */
+    .dayTag {
+        padding: 1px 4px;
+        font-size: 0.5rem;
+    }
+}
+
+/* Extra small screens - use dots instead of text if needed, or very compact */
+@media (max-width: 480px) {
+    .dayCell {
+        min-height: 40px;
+    }
+
+    .dayTag {
+        max-width: 100%;
+        text-overflow: clip;
+    }
+}

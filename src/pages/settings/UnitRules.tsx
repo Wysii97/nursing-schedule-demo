@@ -117,6 +117,110 @@ const UnitRules: React.FC = () => {
                 </div>
             </div>
 
+            {/* Monthly Pre-leave Limits */}
+            <div className={styles.section}>
+                <div className={styles.sectionHeader}>
+                    <div className={styles.sectionIcon}>
+                        <Calendar size={20} />
+                    </div>
+                    <div>
+                        <h2 className={styles.sectionTitle}>特殊月份額度設定</h2>
+                        <p className={styles.sectionDescription}>針對特定月份設定不同的每人預假上限 (未設定則使用全域上限)</p>
+                    </div>
+                </div>
+
+                <div className={styles.formGrid}>
+                    <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
+                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', marginBottom: '1rem' }}>
+                            <div>
+                                <label className={styles.formLabel}>月份</label>
+                                <input
+                                    type="month"
+                                    className={styles.formInput}
+                                    id="newLimitMonth"
+                                    style={{ width: '200px' }}
+                                />
+                            </div>
+                            <div>
+                                <label className={styles.formLabel}>上限 (天)</label>
+                                <input
+                                    type="number"
+                                    className={styles.formInput}
+                                    id="newLimitValue"
+                                    placeholder="天數"
+                                    style={{ width: '100px' }}
+                                />
+                            </div>
+                            <button
+                                className={styles.saveButton}
+                                style={{ height: '42px', padding: '0 1rem' }}
+                                onClick={() => {
+                                    const monthInput = document.getElementById('newLimitMonth') as HTMLInputElement;
+                                    const limitInput = document.getElementById('newLimitValue') as HTMLInputElement;
+                                    const month = monthInput.value;
+                                    const limit = parseInt(limitInput.value);
+
+                                    if (month && !isNaN(limit)) {
+                                        setRule(prev => ({
+                                            ...prev,
+                                            monthlyPreLeaveLimits: {
+                                                ...(prev.monthlyPreLeaveLimits || {}),
+                                                [month]: limit
+                                            }
+                                        }));
+                                        monthInput.value = '';
+                                        limitInput.value = '';
+                                    }
+                                }}
+                            >
+                                新增/更新
+                            </button>
+                        </div>
+
+                        {/* List of custom limits */}
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                            {Object.entries(rule.monthlyPreLeaveLimits || {}).map(([month, limit]) => (
+                                <div key={month} style={{
+                                    background: 'var(--bg-app)',
+                                    padding: '0.5rem 1rem',
+                                    borderRadius: 'var(--radius-md)',
+                                    border: '1px solid var(--border)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem',
+                                    fontSize: '0.875rem'
+                                }}>
+                                    <span style={{ fontWeight: 600 }}>{month}</span>
+                                    <span style={{ color: 'var(--text-secondary)' }}>: {limit} 天</span>
+                                    <button
+                                        onClick={() => {
+                                            const newLimits = { ...rule.monthlyPreLeaveLimits };
+                                            delete newLimits[month];
+                                            setRule(prev => ({ ...prev, monthlyPreLeaveLimits: newLimits }));
+                                        }}
+                                        style={{
+                                            border: 'none',
+                                            background: 'transparent',
+                                            color: 'var(--text-secondary)',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            padding: 0,
+                                            marginLeft: '0.25rem'
+                                        }}
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            ))}
+                            {(!rule.monthlyPreLeaveLimits || Object.keys(rule.monthlyPreLeaveLimits).length === 0) && (
+                                <span style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>尚無特殊設定</span>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Conflict Strategy Section */}
             <div className={styles.section}>
                 <div className={styles.sectionHeader}>

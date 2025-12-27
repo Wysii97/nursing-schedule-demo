@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
-import { mockSchedule as initialSchedule, mockLeaveRequests as initialLeaveRequests, mockStaff } from '../api/mockData';
+import React, { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import type { ScheduleEntry, LeaveRequest } from '../api/mockData';
 import type { Staff } from '../types';
+import { scheduleApi, leaveApi, staffApi } from '../api/client';
 
 export type ScheduleStatus = 'planning' | 'draft' | 'official';
 
@@ -12,20 +12,21 @@ interface ScheduleState {
     confirmationRate: number;
     scheduleStatus: ScheduleStatus;
     confirmedStaffIds: string[];
+    isLoading: boolean;
 }
 
 interface ScheduleContextType extends ScheduleState {
     updateSchedule: (entries: ScheduleEntry[]) => void;
-    submitLeaveRequest: (request: Omit<LeaveRequest, 'id' | 'createdAt'>) => void;
-    approveLeaveRequest: (id: string) => void;
-    rejectLeaveRequest: (id: string) => void;
+    submitLeaveRequest: (request: Omit<LeaveRequest, 'id' | 'createdAt'>) => Promise<void>;
+    approveLeaveRequest: (id: string) => Promise<void>;
+    rejectLeaveRequest: (id: string) => Promise<void>;
     getPendingCount: () => number;
     getTodayOnDuty: () => { total: number; D: number; E: number; N: number };
     getAbsenceCount: () => number;
-    // New actions
     publishDraft: () => void;
     publishOfficial: () => void;
     confirmSchedule: (staffId: string) => void;
+    refreshData: () => Promise<void>;
 }
 
 const ScheduleContext = createContext<ScheduleContextType | null>(null);
@@ -43,13 +44,38 @@ interface ScheduleProviderProps {
 }
 
 export const ScheduleProvider: React.FC<ScheduleProviderProps> = ({ children }) => {
-    const [schedule, setSchedule] = useState<ScheduleEntry[]>(initialSchedule);
-    const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>(initialLeaveRequests);
-    const [staff] = useState<Staff[]>(mockStaff);
+    const [schedule, setSchedule] = useState<ScheduleEntry[]>([]);
+    const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
+    const [staff, setStaff] = useState<Staff[]>([]);
     const [scheduleStatus, setScheduleStatus] = useState<ScheduleStatus>('planning');
     const [confirmedStaffIds, setConfirmedStaffIds] = useState<string[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    // Calculate confirmation rate based on actual confirmations
+    // Load initial data from Supabase
+    const loadData = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const now = new Date();
+            const [scheduleRes, leaveRes, staffRes] = await Promise.all([
+                scheduleApi.getByMonth(now.getFullYear(), now.getMonth() + 1),
+                leaveApi.getAll(),
+                staffApi.getAll()
+            ]);
+
+            if (scheduleRes.success) setSchedule(scheduleRes.data);
+            if (leaveRes.success) setLeaveRequests(leaveRes.data);
+            if (staffRes.success) setStaff(staffRes.data);
+        } catch (error) {
+            console.error('Failed to load schedule data:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        loadData();
+    }, [loadData]);
+
     const confirmationRate = staff.length > 0
         ? Math.round((confirmedStaffIds.length / staff.length) * 100)
         : 0;
@@ -69,21 +95,25 @@ export const ScheduleProvider: React.FC<ScheduleProviderProps> = ({ children }) 
         });
     }, []);
 
-    const submitLeaveRequest = useCallback((request: Omit<LeaveRequest, 'id' | 'createdAt'>) => {
-        const newRequest: LeaveRequest = {
-            ...request,
-            id: `LR${Date.now()}`,
-            createdAt: new Date().toISOString().split('T')[0],
-        };
-        setLeaveRequests(prev => [...prev, newRequest]);
+    const submitLeaveRequest = useCallback(async (request: Omit<LeaveRequest, 'id' | 'createdAt'>) => {
+        const res = await leaveApi.add(request);
+        if (res.success) {
+            setLeaveRequests(prev => [...prev, res.data]);
+        }
     }, []);
 
-    const approveLeaveRequest = useCallback((id: string) => {
-        setLeaveRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'approved' as const } : r));
+    const approveLeaveRequest = useCallback(async (id: string) => {
+        const res = await leaveApi.approve(id);
+        if (res.success) {
+            setLeaveRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'approved' as const } : r));
+        }
     }, []);
 
-    const rejectLeaveRequest = useCallback((id: string) => {
-        setLeaveRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'rejected' as const } : r));
+    const rejectLeaveRequest = useCallback(async (id: string) => {
+        const res = await leaveApi.reject(id);
+        if (res.success) {
+            setLeaveRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'rejected' as const } : r));
+        }
     }, []);
 
     const getPendingCount = useCallback(() => {
@@ -102,12 +132,13 @@ export const ScheduleProvider: React.FC<ScheduleProviderProps> = ({ children }) 
     }, [schedule]);
 
     const getAbsenceCount = useCallback(() => {
-        return 3; // Mock
-    }, []);
+        // TODO: Implement actual absence calculation from DB
+        return leaveRequests.filter(r => r.status === 'approved').length;
+    }, [leaveRequests]);
 
     const publishDraft = useCallback(() => {
         setScheduleStatus('draft');
-        setConfirmedStaffIds([]); // Reset confirmations for new draft
+        setConfirmedStaffIds([]);
     }, []);
 
     const publishOfficial = useCallback(() => {
@@ -121,6 +152,10 @@ export const ScheduleProvider: React.FC<ScheduleProviderProps> = ({ children }) 
         });
     }, []);
 
+    const refreshData = useCallback(async () => {
+        await loadData();
+    }, [loadData]);
+
     return (
         <ScheduleContext.Provider value={{
             schedule,
@@ -129,6 +164,7 @@ export const ScheduleProvider: React.FC<ScheduleProviderProps> = ({ children }) 
             confirmationRate,
             scheduleStatus,
             confirmedStaffIds,
+            isLoading,
             updateSchedule,
             submitLeaveRequest,
             approveLeaveRequest,
@@ -139,6 +175,7 @@ export const ScheduleProvider: React.FC<ScheduleProviderProps> = ({ children }) 
             publishDraft,
             publishOfficial,
             confirmSchedule,
+            refreshData,
         }}>
             {children}
         </ScheduleContext.Provider>

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { zhTW } from 'date-fns/locale';
 import { AlertTriangle, Users, Shuffle, Trophy, CheckCircle, X } from 'lucide-react';
-import { leaveApi } from '../../api/client';
-import { mockRule } from '../../api/mockData';
+import { leaveApi, ruleApi } from '../../api/client';
 import type { LeaveRequest } from '../../api/mockData';
+import type { UnitRule } from '../../types';
 import styles from './ConflictResolution.module.css';
 
 interface ConflictDay {
@@ -19,13 +19,26 @@ const ConflictResolution: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [selectedConflict, setSelectedConflict] = useState<ConflictDay | null>(null);
     const [resolving, setResolving] = useState(false);
+    const [rule, setRule] = useState<UnitRule>({ maxLeavePerDay: 2, maxLeavePerMonth: 4, conflictStrategy: 'Score' });
 
     useEffect(() => {
-        loadConflicts();
+        loadData();
     }, []);
 
-    const loadConflicts = async () => {
+    const loadData = async () => {
         setLoading(true);
+        // Load rules first
+        const ruleRes = await ruleApi.get();
+        let currentRule = rule;
+        if (ruleRes.success) {
+            setRule(ruleRes.data);
+            currentRule = ruleRes.data;
+        }
+        // Then load leave requests
+        await loadConflicts(currentRule);
+    };
+
+    const loadConflicts = async (currentRule: UnitRule) => {
         const res = await leaveApi.getAll();
 
         if (res.success) {
@@ -45,8 +58,8 @@ const ConflictResolution: React.FC = () => {
                 conflictList.push({
                     date,
                     requests,
-                    maxAllowed: mockRule.maxLeavePerDay,
-                    hasConflict: requests.length > mockRule.maxLeavePerDay
+                    maxAllowed: currentRule.maxLeavePerDay,
+                    hasConflict: requests.length > currentRule.maxLeavePerDay
                 });
             });
 
@@ -62,19 +75,46 @@ const ConflictResolution: React.FC = () => {
 
         setResolving(true);
 
-        // Simulate resolution
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        try {
+            // Sort requests based on method
+            let sorted = [...selectedConflict.requests];
 
-        // In real app, this would call API to determine winners
-        const winners = [...selectedConflict.requests]
-            .sort(() => method === 'random' ? Math.random() - 0.5 : 0)
-            .slice(0, selectedConflict.maxAllowed);
+            if (method === 'random') {
+                // Random shuffle using Fisher-Yates
+                for (let i = sorted.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [sorted[i], sorted[j]] = [sorted[j], sorted[i]];
+                }
+            } else {
+                // Score method: Earlier request = higher priority (createdAt ascending)
+                sorted.sort((a, b) => {
+                    const dateA = new Date(a.createdAt || '9999-12-31').getTime();
+                    const dateB = new Date(b.createdAt || '9999-12-31').getTime();
+                    return dateA - dateB;
+                });
+            }
 
-        alert(`已核准 ${winners.map(w => w.staffName).join(', ')} 的申請`);
+            // Split into winners and losers
+            const winners = sorted.slice(0, selectedConflict.maxAllowed);
+            const losers = sorted.slice(selectedConflict.maxAllowed);
+
+            // Approve winners
+            const approvePromises = winners.map(w => leaveApi.approve(w.id));
+            // Reject losers
+            const rejectPromises = losers.map(l => leaveApi.reject(l.id));
+
+            await Promise.all([...approvePromises, ...rejectPromises]);
+
+            alert(`✅ 已核准：${winners.map(w => w.staffName).join(', ')}\n❌ 已駁回：${losers.map(l => l.staffName).join(', ') || '無'}`);
+
+        } catch (error) {
+            console.error('Resolve error:', error);
+            alert('處理時發生錯誤，請稍後再試');
+        }
 
         setSelectedConflict(null);
         setResolving(false);
-        await loadConflicts();
+        await loadConflicts(rule);
     };
 
     const formatDate = (dateStr: string) => {
@@ -95,11 +135,11 @@ const ConflictResolution: React.FC = () => {
                 <div>
                     <h1 className={styles.pageTitle}>預假衝突處理</h1>
                     <p className={styles.pageSubtitle}>
-                        處理同日申請人數超過上限 ({mockRule.maxLeavePerDay} 人) 的日期
+                        處理同日申請人數超過上限 ({rule.maxLeavePerDay} 人) 的日期
                     </p>
                 </div>
                 <div className={styles.strategyBadge}>
-                    預設策略：{mockRule.conflictStrategy === 'Score' ? '積分優先' : '隨機抽籤'}
+                    預設策略：{rule.conflictStrategy === 'Score' ? '積分優先' : '隨機抽籤'}
                 </div>
             </div>
 

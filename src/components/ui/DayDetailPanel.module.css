@@ -6,6 +6,24 @@
     min-width: 320px;
     max-height: 600px;
     overflow-y: auto;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Mobile responsive overlay */
+@media (max-width: 768px) {
+    .panel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        max-height: 100vh;
+        z-index: 1000;
+        border-radius: 0;
+        border: none;
+    }
 }
 
 .header {
