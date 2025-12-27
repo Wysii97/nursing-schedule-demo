@@ -9,7 +9,7 @@ import type { ScheduleEntry } from '../../api/mockData';
 import styles from './Workbench.module.css';
 import { checkScheduleCompliance, type Violation } from '../../utils/scheduleValidation';
 import { generateAutoSchedule } from '../../utils/autoSchedule';
-import { Sparkles, MoreVertical } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import StaffLeaveHistoryModal from '../../components/ui/StaffLeaveHistoryModal';
 import CellContextMenu from '../../components/ui/CellContextMenu';
 import { balanceApiExtended, notificationApi, leaveApi } from '../../api/client';
@@ -27,7 +27,6 @@ const Workbench: React.FC = () => {
     const [originalSchedule, setOriginalSchedule] = useState<Map<string, string>>(new Map());
     const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
     const [loading, setLoading] = useState(true);
-    const [isLoadingSchedule, setIsLoadingSchedule] = useState(false);
     const [saving, setSaving] = useState(false);
     const [publishing, setPublishing] = useState(false);
     const [autoScheduling, setAutoScheduling] = useState(false);
@@ -57,7 +56,7 @@ const Workbench: React.FC = () => {
 
     const loadData = async (isInitial = false) => {
         if (isInitial) setLoading(true);
-        setIsLoadingSchedule(true);
+
 
         const year = currentMonth.getFullYear();
         const month = currentMonth.getMonth() + 1;
@@ -94,7 +93,7 @@ const Workbench: React.FC = () => {
         setOriginalSchedule(new Map(scheduleMap));
         setHasChanges(false);
         setLoading(false);
-        setIsLoadingSchedule(false);
+
     };
 
     const handleAddSupport = (supporter: Staff) => {

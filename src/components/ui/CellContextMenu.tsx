@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Clock, Briefcase, CalendarOff, Trash2, ChevronRight, X } from 'lucide-react';
+import { Clock, Briefcase, CalendarOff, Trash2, ChevronRight } from 'lucide-react';
 import styles from './CellContextMenu.module.css';
 
 interface CellContextMenuProps {

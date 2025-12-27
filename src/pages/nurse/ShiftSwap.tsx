@@ -3,9 +3,8 @@ import { format } from 'date-fns';
 import { zhTW } from 'date-fns/locale';
 import { ArrowRightLeft, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { swapApi, staffApi } from '../../api/client';
+import { swapApi } from '../../api/client';
 import type { SwapRequest } from '../../api/client';
-import type { Staff } from '../../types';
 import styles from './ShiftSwap.module.css';
 
 const STATUS_CONFIG = {
