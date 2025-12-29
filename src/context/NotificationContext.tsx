@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
-import { swapApi } from '../api/client';
+import { swapApi, leaveApi } from '../api/client';
 import { useAuth } from './AuthContext';
 
 export interface Notification {
     id: string;
-    type: 'swap_pending' | 'system' | 'info' | 'warning';
+    type: 'swap_pending' | 'leave_approved' | 'leave_rejected' | 'system' | 'info' | 'warning';
     title: string;
     message: string;
     time: string;
@@ -19,6 +19,7 @@ interface NotificationContextType {
     markAsRead: (id: string) => void;
     markAllAsRead: () => void;
     refresh: () => void;
+    addNotification: (notification: Omit<Notification, 'id' | 'time' | 'read'>) => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | null>(null);
@@ -56,7 +57,29 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
                 link: '/nurse/swap'
             }));
 
-            // Add static system notification
+            // Fetch recent leave requests for this user to check for approved/rejected
+            const leaveRes = await leaveApi.getByStaff(currentUser.id);
+            const leaveNotifications: Notification[] = [];
+            if (leaveRes.success) {
+                // Show notifications for recently processed (approved/rejected) requests
+                const recentProcessed = leaveRes.data.filter(
+                    r => (r.status === 'approved' || r.status === 'rejected') &&
+                        new Date(r.createdAt).getTime() > Date.now() - 24 * 60 * 60 * 1000 // Last 24 hours
+                );
+                recentProcessed.forEach(r => {
+                    leaveNotifications.push({
+                        id: `leave-${r.id}`,
+                        type: r.status === 'approved' ? 'leave_approved' : 'leave_rejected',
+                        title: r.status === 'approved' ? '預假已核准 ✓' : '預假已駁回 ✗',
+                        message: `您的 ${r.date} ${r.leaveType} 已${r.status === 'approved' ? '核准' : '駁回'}`,
+                        time: new Date(r.createdAt).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+                        read: false,
+                        link: '/nurse/preleave'
+                    });
+                });
+            }
+
+            // System notification
             const systemNotifications: Notification[] = [
                 {
                     id: 'system-preleave',
@@ -69,12 +92,15 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
                 }
             ];
 
-            setNotifications([...swapNotifications, ...systemNotifications]);
+            setNotifications([...swapNotifications, ...leaveNotifications, ...systemNotifications]);
         }
     }, [currentUser]);
 
     useEffect(() => {
         fetchNotifications();
+        // Poll every 30 seconds for new notifications
+        const interval = setInterval(fetchNotifications, 30000);
+        return () => clearInterval(interval);
     }, [fetchNotifications]);
 
     const unreadCount = notifications.filter(n => !n.read).length;
@@ -87,6 +113,16 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
         setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     };
 
+    const addNotification = (notification: Omit<Notification, 'id' | 'time' | 'read'>) => {
+        const newNotif: Notification = {
+            ...notification,
+            id: `notif-${Date.now()}`,
+            time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+            read: false
+        };
+        setNotifications(prev => [newNotif, ...prev]);
+    };
+
     return (
         <NotificationContext.Provider value={{
             notifications,
@@ -94,7 +130,8 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
             pendingSwapCount,
             markAsRead,
             markAllAsRead,
-            refresh: fetchNotifications
+            refresh: fetchNotifications,
+            addNotification
         }}>
             {children}
         </NotificationContext.Provider>

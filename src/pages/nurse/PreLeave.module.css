@@ -355,6 +355,14 @@
     }
 
     .submitButton {
-        padding: var(--spacing-sm);
+        padding: var(--spacing-md);
+        min-height: 48px;
+        font-size: 1rem;
+    }
+
+    /* Touch-friendly buttons */
+    button,
+    .leaveTypeOption {
+        min-height: 44px;
     }
 }

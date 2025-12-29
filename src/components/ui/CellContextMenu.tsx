@@ -36,9 +36,21 @@ const CellContextMenu: React.FC<CellContextMenuProps> = ({
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [onClose]);
 
-    // Simple adjustment if menu goes off screen (basic implementation)
+    // Adjust position if near bottom of screen
+    const [adjustedY, setAdjustedY] = useState(y);
+
+    useEffect(() => {
+        if (menuRef.current) {
+            const menuHeight = menuRef.current.offsetHeight;
+            const windowHeight = window.innerHeight;
+            if (y + menuHeight > windowHeight) {
+                setAdjustedY(windowHeight - menuHeight - 10);
+            }
+        }
+    }, [y]);
+
     const style = {
-        top: y,
+        top: adjustedY,
         left: x,
     };
 
@@ -71,11 +83,17 @@ const CellContextMenu: React.FC<CellContextMenuProps> = ({
             {/* Borrow Leave with Submenu */}
             <div
                 className={styles.menuItem}
-                onMouseEnter={() => setShowBorrowSubmenu(true)}
-                onMouseLeave={() => setShowBorrowSubmenu(false)}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    setShowBorrowSubmenu(!showBorrowSubmenu);
+                }}
             >
                 <Clock size={14} /> 借休
-                <ChevronRight size={14} className={styles.arrow} />
+                <ChevronRight
+                    size={14}
+                    className={styles.arrow}
+                    style={{ transform: showBorrowSubmenu ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
+                />
 
                 {showBorrowSubmenu && (
                     <div className={styles.submenu}>

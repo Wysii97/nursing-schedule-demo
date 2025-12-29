@@ -460,6 +460,17 @@ const MySchedule: React.FC = () => {
                     />
                 )
             }
+
+            {/* Mobile Sticky Confirm Banner */}
+            {displayStatus === 'draft' && !isConfirmed && (
+                <div className={styles.mobileConfirmBanner}>
+                    <span>📋 草案待確認</span>
+                    <button onClick={handleConfirm}>
+                        <CheckCircle2 size={16} />
+                        確認無誤
+                    </button>
+                </div>
+            )}
         </>
     );
 };

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Plus, Bell, ChevronDown, AlertTriangle, ArrowRightLeft, Info } from 'lucide-react';
+import { Plus, Bell, ChevronDown, AlertTriangle, ArrowRightLeft, Info, CheckCircle, XCircle, Menu, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
 import { ROLE_LABELS } from '../../types';
@@ -14,9 +14,7 @@ const AppLayout: React.FC = () => {
     const { currentUser, hasPermission } = useAuth();
     const { notifications, unreadCount, markAllAsRead } = useNotifications();
     const [showNotifications, setShowNotifications] = useState(false);
-
-    // Check if current path is in settings section
-    const isSettingsActive = location.pathname.startsWith('/settings');
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     // Role-based navigation visibility
     const canAccessSettings = hasPermission('view_settings');
@@ -24,6 +22,8 @@ const AppLayout: React.FC = () => {
     const getNotificationIcon = (type: string) => {
         switch (type) {
             case 'swap_pending': return <ArrowRightLeft size={14} />;
+            case 'leave_approved': return <CheckCircle size={14} />;
+            case 'leave_rejected': return <XCircle size={14} />;
             case 'warning': return <AlertTriangle size={14} />;
             default: return <Info size={14} />;
         }
@@ -31,9 +31,51 @@ const AppLayout: React.FC = () => {
 
     return (
         <div className={styles.appContainer}>
+            {/* Mobile Menu Overlay */}
+            {mobileMenuOpen && (
+                <div className={styles.mobileMenuOverlay}>
+                    <div className={styles.mobileMenuHeader}>
+                        <span>選單</span>
+                        <button onClick={() => setMobileMenuOpen(false)}>
+                            <X size={24} />
+                        </button>
+                    </div>
+                    <nav className={styles.mobileNav}>
+                        <NavLink to="/nurse/schedule" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>
+                            📅 我的班表
+                        </NavLink>
+                        <NavLink to="/nurse/preleave" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>
+                            📝 預假申請
+                        </NavLink>
+                        <NavLink to="/nurse/swap" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>
+                            🔄 換班申請
+                        </NavLink>
+                        {canAccessSettings && (
+                            <>
+                                <div className={styles.mobileNavDivider} />
+                                <NavLink to="/schedule/workbench" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>
+                                    📋 排班工作台
+                                </NavLink>
+                                <NavLink to="/schedule/leave-approval" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>
+                                    ✓ 預假審核
+                                </NavLink>
+                                <NavLink to="/settings/staff" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>
+                                    👥 人員管理
+                                </NavLink>
+                            </>
+                        )}
+                    </nav>
+                </div>
+            )}
+
             {/* Top Navigation Bar */}
             <header className={styles.topbar}>
                 <div className={styles.topbarLeft}>
+                    {/* Mobile Hamburger */}
+                    <button className={styles.mobileMenuBtn} onClick={() => setMobileMenuOpen(true)}>
+                        <Menu size={24} />
+                    </button>
+
                     {/* Logo */}
                     <div className={styles.logo}>
                         <div className={styles.logoIcon}>
@@ -70,43 +112,31 @@ const AppLayout: React.FC = () => {
                             預假申請
                         </NavLink>
 
-                        {/* 換班管理 - visible to all */}
-                        <NavLink
-                            to="/nurse/swap"
-                            className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
-                        >
-                            換班管理
-                        </NavLink>
-
-                        {/* 排班管理 - only for deputy and manager */}
+                        {/* 管理 - only for deputy and manager */}
                         {canAccessSettings && (
                             <div className={styles.dropdown}>
-                                <span className={`${styles.navLink} ${location.pathname.startsWith('/schedule') ? styles.active : ''}`}>
-                                    排班管理 <ChevronDown size={14} />
+                                <span className={`${styles.navLink} ${(location.pathname.startsWith('/schedule') || location.pathname.startsWith('/settings') || location.pathname === '/nurse/swap') ? styles.active : ''}`}>
+                                    管理 <ChevronDown size={14} />
                                 </span>
                                 <div className={styles.dropdownMenu}>
-                                    <NavLink to="/schedule/conflicts" className={styles.dropdownItem}>
-                                        預假衝突處理
-                                    </NavLink>
                                     <NavLink to="/schedule/workbench" className={styles.dropdownItem}>
                                         排班工作台
                                     </NavLink>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* 設定 - only for deputy and manager */}
-                        {canAccessSettings && (
-                            <div className={styles.dropdown}>
-                                <span className={`${styles.navLink} ${isSettingsActive ? styles.active : ''}`}>
-                                    設定 <ChevronDown size={14} />
-                                </span>
-                                <div className={styles.dropdownMenu}>
-                                    <NavLink to="/settings/shifts" className={styles.dropdownItem}>
-                                        班別參數設定
+                                    <NavLink to="/schedule/leave-approval" className={styles.dropdownItem}>
+                                        預假審核
+                                    </NavLink>
+                                    <NavLink to="/nurse/swap" className={styles.dropdownItem}>
+                                        換班管理
+                                    </NavLink>
+                                    <div className={styles.dropdownDivider} />
+                                    <NavLink to="/settings/staff" className={styles.dropdownItem}>
+                                        人員管理
                                     </NavLink>
                                     <NavLink to="/settings/rules" className={styles.dropdownItem}>
                                         單位規則設定
+                                    </NavLink>
+                                    <NavLink to="/settings/shifts" className={styles.dropdownItem}>
+                                        班別參數設定
                                     </NavLink>
                                 </div>
                             </div>

@@ -29,7 +29,7 @@ const Dashboard: React.FC = () => {
             return entry?.shiftCode || 'OFF';
         });
         const hours = sched.filter(sh => sh !== 'OFF').length * 8;
-        const offBalance = Math.floor(Math.random() * 5) - 2;
+        const offBalance = 0; // TODO: calculate from leave balance
         return { ...s, schedule: sched, hours, offBalance };
     });
 
@@ -105,7 +105,7 @@ const Dashboard: React.FC = () => {
                         </div>
                         <div className={styles.cardValue}>
                             <span className={styles.bigNum}>{confirmationRate}%</span>
-                            <span className={styles.subNum}>11月份</span>
+                            <span className={styles.subNum}>{format(new Date(), 'M月', { locale: zhTW })}</span>
                         </div>
                         <div className={styles.confirmBreakdown}>
                             <span>待審核 <strong className={styles.dangerText}>{pendingCount}件</strong></span>
@@ -204,7 +204,7 @@ const Dashboard: React.FC = () => {
                 <button className={styles.actionBtn} data-type="primary" onClick={() => navigate('/schedule/workbench')}>
                     <Check size={16} /> <div><strong>發布排班</strong><span>11月正式班表</span></div>
                 </button>
-                <button className={styles.actionBtn} onClick={() => navigate('/schedule/conflicts')}>
+                <button className={styles.actionBtn} onClick={() => navigate('/schedule/workbench')}>
                     <UserPlus size={16} /> <div><strong>支援調度</strong><span>跨病房人力支援</span></div>
                 </button>
                 <button className={styles.actionBtn}>

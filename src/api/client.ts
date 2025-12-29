@@ -1,5 +1,5 @@
-import type { Shift, ApiResponse, UnitRule, Staff } from '../types';
-import { type LeaveRequest, type ScheduleEntry, type BalanceData, mockLeaveRequests } from './mockData';
+import type { Shift, ApiResponse, UnitRule, Staff, Unit } from '../types';
+import { type LeaveRequest, type ScheduleEntry, type BalanceData } from './mockData';
 
 // Generate ID
 const generateId = () => Math.random().toString(36).substr(2, 9);
@@ -119,12 +119,70 @@ export const shiftApi = {
     }
 };
 
+// Units API
+export const unitsApi = {
+    getAll: async (): Promise<ApiResponse<Unit[]>> => {
+        const { data, error } = await supabase
+            .from('units')
+            .select('*')
+            .order('id');
+
+        if (error) return { success: false, message: error.message, data: [] };
+
+        const mapped: Unit[] = data.map(item => ({
+            id: item.id,
+            code: item.code,
+            name: item.name
+        }));
+        return { success: true, message: '', data: mapped };
+    }
+};
+
+// Manager Units API - for multi-unit management
+export const managerUnitsApi = {
+    get: async (managerId: string): Promise<ApiResponse<string[]>> => {
+        const { data, error } = await supabase
+            .from('manager_units')
+            .select('unit_id')
+            .eq('manager_id', managerId);
+
+        if (error) return { success: false, message: error.message, data: [] };
+
+        const unitIds = data.map(item => item.unit_id);
+        return { success: true, message: '', data: unitIds };
+    },
+
+    update: async (managerId: string, unitIds: string[]): Promise<ApiResponse<void>> => {
+        // Delete existing mappings
+        await supabase
+            .from('manager_units')
+            .delete()
+            .eq('manager_id', managerId);
+
+        // Insert new mappings
+        if (unitIds.length > 0) {
+            const inserts = unitIds.map(unitId => ({
+                manager_id: managerId,
+                unit_id: unitId
+            }));
+
+            const { error } = await supabase
+                .from('manager_units')
+                .insert(inserts);
+
+            if (error) return { success: false, message: error.message, data: undefined };
+        }
+
+        return { success: true, message: '管理單位已更新', data: undefined };
+    }
+};
+
 export const ruleApi = {
-    get: async (): Promise<ApiResponse<UnitRule>> => {
+    get: async (unitId: string = 'U001'): Promise<ApiResponse<UnitRule>> => {
         const { data, error } = await supabase
             .from('unit_rules')
             .select('*')
-            .eq('unit_id', 'U001')
+            .eq('unit_id', unitId)
             .single();
 
         if (error) {
@@ -139,30 +197,33 @@ export const ruleApi = {
             conflictStrategy: data.conflict_strategy as any,
             preleaveOpenMonth: data.preleave_open_month,
             preleaveDeadline: data.preleave_deadline,
-            monthlyPreLeaveLimits: data.monthly_preleave_limits
+            monthlyPreLeaveLimits: data.monthly_preleave_limits,
+            periodStartDay: data.period_start_day || 1
         };
 
         return { success: true, message: '', data: rule };
     },
 
-    update: async (rule: UnitRule): Promise<ApiResponse<UnitRule>> => {
+    update: async (rule: UnitRule, unitId: string = 'U001'): Promise<ApiResponse<UnitRule>> => {
         const dbPayload = {
+            unit_id: unitId, // Use provided unitId
             max_leave_per_month: rule.maxLeavePerMonth,
             max_leave_per_day: rule.maxLeavePerDay,
             conflict_strategy: rule.conflictStrategy,
             preleave_open_month: rule.preleaveOpenMonth,
             preleave_deadline: rule.preleaveDeadline,
-            monthly_preleave_limits: rule.monthlyPreLeaveLimits
+            monthly_preleave_limits: rule.monthlyPreLeaveLimits,
+            period_start_day: rule.periodStartDay
         };
 
-        const { error } = await supabase
+        // Use upsert to handle both insert and update cases
+        const { data, error } = await supabase
             .from('unit_rules')
-            .update(dbPayload)
-            .eq('unit_id', 'U001')
-            .select()
-            .single();
+            .upsert(dbPayload, { onConflict: 'unit_id' })
+            .select();
 
         if (error) {
+            console.error('ruleApi.update - error:', error);
             return { success: false, message: error.message, data: rule };
         }
 
@@ -248,26 +309,47 @@ export const leaveApi = {
             createdAt: d.created_at
         })) : [];
 
-        // MERGE MOCK DATA FOR DEMO
-        const mockFiltered = mockLeaveRequests.filter(r => r.date >= startDate && r.date <= endDate);
-        // Deduplicate by ID
-        const existingIds = new Set(requests.map(r => r.id));
-        mockFiltered.forEach(m => {
-            if (!existingIds.has(m.id)) {
-                requests.push(m as any);
-            }
-        });
+
+
+        return { success: true, message: '', data: requests };
+    },
+
+    // Get requests by date range (for period spans)
+    getByRange: async (startDate: string, endDate: string): Promise<ApiResponse<LeaveRequest[]>> => {
+        const { data, error } = await supabase
+            .from('leave_requests')
+            .select('*')
+            .gte('date', startDate)
+            .lte('date', endDate)
+            .order('date', { ascending: true });
+
+        if (error) return { success: false, message: error.message, data: [] };
+
+        const requests = data && data.length > 0 ? data.map((d: any) => ({
+            id: d.id,
+            staffId: d.staff_id,
+            staffName: d.staff_name || 'Unknown',
+            date: d.date,
+            type: d.type,
+            leaveType: d.leave_type,
+            shiftCode: d.shift_code,
+            reason: d.reason,
+            status: d.status,
+            createdAt: d.created_at
+        })) : [];
 
         return { success: true, message: '', data: requests };
     },
 
     // Add new request
     add: async (request: Omit<LeaveRequest, 'id' | 'createdAt'>): Promise<ApiResponse<LeaveRequest>> => {
+        const newId = generateId(); // Generate ID client-side
         const { data, error } = await supabase
             .from('leave_requests')
             .insert({
+                id: newId, // Explicitly set ID
                 staff_id: request.staffId,
-                staff_name: request.staffName,
+                // staff_name: request.staffName, // Removed as column doesn't exist in DB
                 date: request.date,
                 type: request.type,
                 leave_type: request.leaveType,
@@ -399,19 +481,23 @@ export const scheduleApi = {
             return { success: true, message: '無變更', data: undefined };
         }
 
-        const dbPayload = entries.map(entry => ({
-            date: entry.date,
+        // Bulk upsert for performance - single DB call instead of N calls
+        const payload = entries.map(entry => ({
             staff_id: entry.staffId,
+            date: entry.date,
             shift_code: entry.shiftCode
         }));
 
         const { error } = await supabase
             .from('schedules')
-            .upsert(dbPayload, { onConflict: 'date,staff_id' });
+            .upsert(payload, {
+                onConflict: 'staff_id,date',
+                ignoreDuplicates: false
+            });
 
         if (error) {
-            console.error('Error saving schedule:', error);
-            return { success: false, message: error.message, data: undefined };
+            console.error('Bulk save error:', error);
+            return { success: false, message: '儲存失敗: ' + error.message, data: undefined };
         }
 
         return { success: true, message: '班表已儲存', data: undefined };
@@ -419,11 +505,11 @@ export const scheduleApi = {
 };
 
 export const staffApi = {
-    getAll: async (): Promise<ApiResponse<Staff[]>> => {
+    getAll: async (unitId: string = 'U001'): Promise<ApiResponse<Staff[]>> => {
         const { data, error } = await supabase
             .from('staff')
             .select('*')
-            .eq('department_id', 'U001')
+            .eq('department_id', unitId)
             .order('id');
 
         if (error) return { success: false, message: error.message, data: [] };
@@ -484,11 +570,11 @@ export const staffApi = {
         };
     },
 
-    getExternal: async (): Promise<ApiResponse<Staff[]>> => {
+    getExternal: async (unitId: string = 'U001'): Promise<ApiResponse<Staff[]>> => {
         const { data, error } = await supabase
             .from('staff')
             .select('*')
-            .neq('department_id', 'U001');
+            .neq('department_id', unitId);
 
         if (error) return { success: false, message: error.message, data: [] };
 
@@ -500,6 +586,74 @@ export const staffApi = {
             role: item.role as any
         }));
         return { success: true, message: '', data: mapped };
+    },
+
+    create: async (staff: Omit<Staff, 'managedUnits'>): Promise<ApiResponse<Staff>> => {
+        const { data, error } = await supabase
+            .from('staff')
+            .insert({
+                id: staff.id,
+                name: staff.name,
+                level: staff.level,
+                department_id: staff.departmentId,
+                role: staff.role
+            })
+            .select()
+            .single();
+
+        if (error) return { success: false, message: error.message, data: staff };
+
+        return {
+            success: true,
+            message: '人員已新增',
+            data: {
+                id: data.id,
+                name: data.name,
+                level: data.level,
+                departmentId: data.department_id,
+                role: data.role as any
+            }
+        };
+    },
+
+    update: async (id: string, staff: Partial<Staff>): Promise<ApiResponse<Staff>> => {
+        const updateData: Record<string, unknown> = {};
+        if (staff.name !== undefined) updateData.name = staff.name;
+        if (staff.level !== undefined) updateData.level = staff.level;
+        if (staff.departmentId !== undefined) updateData.department_id = staff.departmentId;
+        if (staff.role !== undefined) updateData.role = staff.role;
+
+        const { data, error } = await supabase
+            .from('staff')
+            .update(updateData)
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) return { success: false, message: error.message, data: {} as Staff };
+
+        return {
+            success: true,
+            message: '人員已更新',
+            data: {
+                id: data.id,
+                name: data.name,
+                level: data.level,
+                departmentId: data.department_id,
+                role: data.role as any
+            }
+        };
+    },
+
+    delete: async (id: string): Promise<ApiResponse<void>> => {
+        const { error } = await supabase
+            .from('staff')
+            .delete()
+            .eq('id', id);
+
+        if (error) return { success: false, message: error.message, data: undefined };
+
+        return { success: true, message: '人員已刪除', data: undefined };
     }
 };
 
@@ -526,42 +680,126 @@ export const balanceApi = {
 
 // Schedule Confirmation API
 export const confirmApi = {
-    // Confirm schedule for a specific month
-    confirm: async (staffId: string, yearMonth: string): Promise<ApiResponse<void>> => {
+    // Confirm schedule for a specific period
+    confirm: async (staffId: string, periodId: string): Promise<ApiResponse<void>> => {
         const { error } = await supabase
             .from('schedule_confirmations')
             .upsert({
                 staff_id: staffId,
-                year_month: yearMonth,
+                period_id: periodId,
                 confirmed_at: new Date().toISOString()
-            }, { onConflict: 'staff_id,year_month' });
+            }, { onConflict: 'period_id,staff_id' });
 
         if (error) return { success: false, message: error.message, data: undefined };
         return { success: true, message: '已確認班表', data: undefined };
     },
 
-    // Check if a staff member has confirmed for a specific month
-    isConfirmed: async (staffId: string, yearMonth: string): Promise<ApiResponse<boolean>> => {
+    // Check if a staff member has confirmed for a specific period
+    isConfirmed: async (staffId: string, periodId: string): Promise<ApiResponse<boolean>> => {
         const { data, error } = await supabase
             .from('schedule_confirmations')
             .select('confirmed_at')
             .eq('staff_id', staffId)
-            .eq('year_month', yearMonth)
+            .eq('period_id', periodId)
             .maybeSingle();
 
         if (error) return { success: false, message: error.message, data: false };
         return { success: true, message: '', data: !!data };
     },
 
-    // Get all confirmations for a specific month
-    getByMonth: async (yearMonth: string): Promise<ApiResponse<string[]>> => {
+    // Get all confirmations for a specific period
+    getByPeriod: async (periodId: string): Promise<ApiResponse<string[]>> => {
+        // Skip API call for temp period IDs (not yet saved to DB)
+        if (periodId.startsWith('new-')) {
+            return { success: true, message: '', data: [] };
+        }
+
         const { data, error } = await supabase
             .from('schedule_confirmations')
             .select('staff_id')
-            .eq('year_month', yearMonth);
+            .eq('period_id', periodId);
 
         if (error) return { success: false, message: error.message, data: [] };
         return { success: true, message: '', data: data.map(d => d.staff_id) };
+    },
+
+    // Reset all confirmations for a period (when draft changes)
+    reset: async (periodId: string): Promise<ApiResponse<void>> => {
+        const { error } = await supabase
+            .from('schedule_confirmations')
+            .delete()
+            .eq('period_id', periodId);
+
+        if (error) return { success: false, message: error.message, data: undefined };
+        return { success: true, message: '已重置確認狀態', data: undefined };
+    }
+};
+
+export const periodApi = {
+    // Get period overlapping with a specific date
+    getPeriodByDate: async (unitId: string, date: string): Promise<ApiResponse<any>> => {
+        const { data, error } = await supabase
+            .from('schedule_periods')
+            .select('*')
+            .eq('unit_id', unitId)
+            .lte('start_date', date)
+            .gte('end_date', date)
+            .maybeSingle();
+
+        if (error) return { success: false, message: error.message, data: null };
+        if (!data) return { success: true, message: '無此週期', data: null };
+
+        return {
+            success: true, message: '', data: {
+                id: data.id,
+                unitId: data.unit_id,
+                name: data.name,
+                startDate: data.start_date,
+                endDate: data.end_date,
+                status: data.status,
+                createdAt: data.created_at
+            }
+        };
+    },
+
+    // Create or Update a period
+    upsert: async (period: { unitId: string, name: string, startDate: string, endDate: string, status?: string }): Promise<ApiResponse<any>> => {
+        const { data, error } = await supabase
+            .from('schedule_periods')
+            .upsert({
+                unit_id: period.unitId,
+                name: period.name,
+                start_date: period.startDate,
+                end_date: period.endDate,
+                status: period.status || 'planning'
+            }, { onConflict: 'unit_id,start_date' })
+            .select()
+            .single();
+
+        if (error) return { success: false, message: error.message, data: null };
+
+        return {
+            success: true, message: '週期已儲存', data: {
+                id: data.id,
+                unitId: data.unit_id,
+                name: data.name,
+                startDate: data.start_date,
+                endDate: data.end_date,
+                status: data.status,
+                createdAt: data.created_at
+            }
+        };
+    },
+
+    // Update status only
+    updateStatus: async (id: string, status: string): Promise<ApiResponse<void>> => {
+        const { error } = await supabase
+            .from('schedule_periods')
+            .update({ status })
+            .eq('id', id);
+
+        if (error) return { success: false, message: error.message, data: undefined };
+        return { success: true, message: '狀態已更新', data: undefined };
     }
 };
 

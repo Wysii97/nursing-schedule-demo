@@ -188,6 +188,12 @@
     background: rgba(59, 130, 246, 0.1);
 }
 
+.dropdownDivider {
+    height: 1px;
+    background: var(--border);
+    margin: var(--spacing-xs) 0;
+}
+
 /* Notification Dropdown */
 .notificationWrapper {
     position: relative;
@@ -314,4 +320,93 @@
     font-size: 0.6875rem;
     color: var(--text-secondary);
     margin-top: 4px;
+}
+
+/* Mobile Menu */
+.mobileMenuBtn {
+    display: none;
+    background: none;
+    border: none;
+    padding: var(--spacing-sm);
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+    .mobileMenuBtn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .topbarNav {
+        display: none;
+    }
+
+    .logoText {
+        display: none;
+    }
+}
+
+.mobileMenuOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--bg-card);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+}
+
+.mobileMenuHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--border);
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.mobileMenuHeader button {
+    background: none;
+    border: none;
+    padding: var(--spacing-sm);
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+.mobileNav {
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-md);
+    gap: var(--spacing-xs);
+}
+
+.mobileNavLink {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    font-size: 1.125rem;
+    color: var(--text-main);
+    border-radius: var(--radius-md);
+    transition: background 0.15s;
+}
+
+.mobileNavLink:hover {
+    background: var(--bg-app);
+}
+
+.mobileNavLink.active {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--primary);
+}
+
+.mobileNavDivider {
+    height: 1px;
+    background: var(--border);
+    margin: var(--spacing-sm) 0;
 }

@@ -39,7 +39,18 @@ export interface UnitRule {
     conflictStrategy: 'Score' | 'Random';
     preleaveOpenMonth?: string;  // Format: '2025-02'
     preleaveDeadline?: string;   // Format: '2025-01-20'
+    periodStartDay?: number;     // e.g., 21 for 21st to 20th
     monthlyPreLeaveLimits?: Record<string, number>; // Key: 'YYYY-MM', Value: limit per person
+}
+
+export interface SchedulePeriod {
+    id: string;
+    unitId: string;
+    name: string;      // e.g. "2025-02"
+    startDate: string; // YYYY-MM-DD
+    endDate: string;   // YYYY-MM-DD
+    status: 'planning' | 'draft' | 'official';
+    createdAt?: string;
 }
 
 export interface ApiResponse<T> {

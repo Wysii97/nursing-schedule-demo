@@ -1,8 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import type { Staff, Unit, Permission } from '../types';
 import { ROLE_PERMISSIONS } from '../types';
-import { mockUnits } from '../api/mockData';
-import { staffApi } from '../api/client';
+import { staffApi, unitsApi, managerUnitsApi } from '../api/client';
 
 interface AuthContextType {
     currentUser: Staff | null;
@@ -19,8 +18,19 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [currentUser, setCurrentUserState] = useState<Staff | null>(null);
-    const [currentUnit, setCurrentUnit] = useState<Unit>(mockUnits[0]);
+    const [currentUnit, setCurrentUnit] = useState<Unit | null>(null);
+    const [allUnits, setAllUnits] = useState<Unit[]>([]);
+    const [managedUnitIds, setManagedUnitIds] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    // Load all units on mount
+    useEffect(() => {
+        unitsApi.getAll().then(res => {
+            if (res.success) {
+                setAllUnits(res.data);
+            }
+        });
+    }, []);
 
     // Load current user from API on mount
     useEffect(() => {
@@ -28,29 +38,49 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const res = await staffApi.getCurrent();
             if (res.success) {
                 setCurrentUserState(res.data);
-                // Set default unit based on user's department
-                const userUnit = mockUnits.find(u => u.id === res.data.departmentId);
-                if (userUnit) setCurrentUnit(userUnit);
+                // Load managed units for this user
+                const managedRes = await managerUnitsApi.get(res.data.id);
+                if (managedRes.success) {
+                    setManagedUnitIds(managedRes.data);
+                }
             }
             setIsLoading(false);
         };
         loadUser();
     }, []);
 
-    const setCurrentUser = (user: Staff) => {
+    // Set current unit when user or units are loaded
+    useEffect(() => {
+        if (currentUser && allUnits.length > 0 && !currentUnit) {
+            // Try to find user's department unit
+            const userUnit = allUnits.find(u => u.id === currentUser.departmentId);
+            if (userUnit) {
+                setCurrentUnit(userUnit);
+            } else if (allUnits.length > 0) {
+                setCurrentUnit(allUnits[0]);
+            }
+        }
+    }, [currentUser, allUnits, currentUnit]);
+
+    const setCurrentUser = async (user: Staff) => {
         setCurrentUserState(user);
-        // Set default unit when switching user
-        if (user.managedUnits && user.managedUnits.length > 0) {
-            setCurrentUnit(user.managedUnits[0]);
+        // Load managed units for this user
+        const managedRes = await managerUnitsApi.get(user.id);
+        if (managedRes.success) {
+            setManagedUnitIds(managedRes.data);
+        }
+        // Set default unit
+        if (managedRes.success && managedRes.data.length > 0) {
+            const unit = allUnits.find(u => u.id === managedRes.data[0]);
+            if (unit) setCurrentUnit(unit);
         } else {
-            // For regular nurse, use their department
-            const userUnit = mockUnits.find(u => u.id === user.departmentId);
+            const userUnit = allUnits.find(u => u.id === user.departmentId);
             if (userUnit) setCurrentUnit(userUnit);
         }
     };
 
     const switchUnit = (unitId: string) => {
-        const unit = mockUnits.find(u => u.id === unitId);
+        const unit = allUnits.find(u => u.id === unitId);
         if (unit) {
             setCurrentUnit(unit);
         }
@@ -62,12 +92,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return permissions.includes(permission);
     };
 
-    const canManageMultipleUnits =
-        currentUser?.managedUnits !== undefined &&
-        currentUser.managedUnits.length > 1;
+    // Available units: for manager/deputy use managed units, for nurse use their department
+    const availableUnits = managedUnitIds.length > 0
+        ? allUnits.filter(u => managedUnitIds.includes(u.id))
+        : currentUser
+            ? allUnits.filter(u => u.id === currentUser.departmentId)
+            : [];
 
-    const availableUnits = currentUser?.managedUnits ||
-        (currentUser ? [mockUnits.find(u => u.id === currentUser.departmentId)!].filter(Boolean) : []);
+    const canManageMultipleUnits = availableUnits.length > 1;
 
     return (
         <AuthContext.Provider value={{
@@ -92,3 +124,4 @@ export const useAuth = (): AuthContextType => {
     }
     return context;
 };
+

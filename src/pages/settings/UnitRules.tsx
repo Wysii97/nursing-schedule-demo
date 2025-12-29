@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Calendar, Shuffle, Star, Clock, Save, RotateCcw } from 'lucide-react';
 import { ruleApi } from '../../api/client';
+import { useAuth } from '../../context/AuthContext';
 import type { UnitRule } from '../../types';
 import styles from './UnitRules.module.css';
 
 const UnitRules: React.FC = () => {
+    const { currentUnit } = useAuth();
     const [rule, setRule] = useState<UnitRule>({
         maxLeavePerMonth: 4,
         maxLeavePerDay: 2,
@@ -15,19 +17,21 @@ const UnitRules: React.FC = () => {
     const [saving, setSaving] = useState(false);
     const [lastUpdated, setLastUpdated] = useState<string>('');
 
-    useEffect(() => {
-        loadRules();
-    }, []);
-
-    const loadRules = async () => {
+    const loadRules = useCallback(async () => {
+        if (!currentUnit) return;
         setLoading(true);
-        const res = await ruleApi.get();
+        const res = await ruleApi.get(currentUnit.id);
         if (res.success) {
             setRule(res.data);
             setOriginalRule(res.data);
         }
         setLoading(false);
-    };
+    }, [currentUnit]);
+
+    // Reload rules when unit changes
+    useEffect(() => {
+        loadRules();
+    }, [loadRules]);
 
     const handleStrategyChange = (strategy: 'Score' | 'Random') => {
         setRule(prev => ({ ...prev, conflictStrategy: strategy }));
@@ -40,12 +44,22 @@ const UnitRules: React.FC = () => {
     };
 
     const handleSave = async () => {
+        if (!currentUnit) return;
         setSaving(true);
-        const res = await ruleApi.update(rule);
-        if (res.success) {
-            setOriginalRule(rule);
-            setLastUpdated(new Date().toLocaleString('zh-TW'));
-            alert('設定已儲存');
+        console.log('Saving rule:', rule);
+        try {
+            const res = await ruleApi.update(rule, currentUnit.id);
+            console.log('Save response:', res);
+            if (res.success) {
+                setOriginalRule(rule);
+                setLastUpdated(new Date().toLocaleString('zh-TW'));
+                alert('設定已儲存成功！');
+            } else {
+                alert('儲存失敗：' + (res.message || '未知錯誤'));
+            }
+        } catch (err) {
+            console.error('Save error:', err);
+            alert('儲存發生錯誤：' + (err instanceof Error ? err.message : String(err)));
         }
         setSaving(false);
     };
@@ -70,6 +84,37 @@ const UnitRules: React.FC = () => {
                     <div className={styles.lastUpdate}>
                         <Clock size={14} />
                         設定最後更新: {lastUpdated || '尚未儲存'}
+                    </div>
+                </div>
+            </div>
+
+            {/* Period Settings Section */}
+            <div className={styles.section}>
+                <div className={styles.sectionHeader}>
+                    <div className={styles.sectionIcon}>
+                        <Clock size={20} />
+                    </div>
+                    <div>
+                        <h2 className={styles.sectionTitle}>排班週期設定</h2>
+                        <p className={styles.sectionDescription}>設定每月排班週期的起始日 (例：設定 21 號，則週期為當月 21 日至次月 20 日)</p>
+                    </div>
+                </div>
+
+                <div className={styles.formGrid}>
+                    <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>週期起始日 (切帳日)</label>
+                        <div className={styles.inputWrapper}>
+                            <input
+                                type="number"
+                                min="1"
+                                max="28"
+                                className={styles.formInput}
+                                value={rule.periodStartDay || 1}
+                                onChange={(e) => setRule(prev => ({ ...prev, periodStartDay: parseInt(e.target.value) || 1 }))}
+                            />
+                            <span className={styles.inputSuffix}>日</span>
+                        </div>
+                        <span className={styles.formHint}>設定為 1 即為自然月 (1號-月底)。建議最大設為 28 以避免大小月問題。</span>
                     </div>
                 </div>
             </div>

@@ -105,6 +105,17 @@
     color: var(--text-main);
 }
 
+.exportBtn {
+    color: #059669;
+    border: 1px solid #10B981;
+    background: #ECFDF5;
+}
+
+.exportBtn:hover {
+    background: #10B981;
+    color: white;
+}
+
 .saveBtn {
     background: var(--primary);
     color: white;
@@ -202,56 +213,133 @@
     font-size: 0.6875rem;
 }
 
-/* Grid Wrapper */
+/* Grid Wrapper - Single Scroll Container */
 .gridWrapper {
     flex: 1;
-    overflow: auto;
+    display: flex;
+    flex-direction: column;
     background: var(--bg-card);
     border-radius: var(--radius-lg);
-    padding: var(--spacing-md);
+    overflow: hidden;
 }
 
-.scheduleGrid {
-    display: grid;
-    gap: 1px;
+/* Header row container */
+.headerRow {
+    display: flex;
+    flex-shrink: 0;
+    background: var(--bg-app);
+    border-bottom: 1px solid var(--border);
+}
+
+/* Body container - single vertical scroll */
+.bodyContainer {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Each data row */
+.dataRow {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+}
+
+.dataRow:last-child {
+    border-bottom: none;
+}
+
+/* Fixed left cell using sticky */
+.stickyLeft {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    background: var(--bg-card);
+    flex-shrink: 0;
+    width: 160px;
+}
+
+/* Scrollable dates section - hide scrollbar for data rows */
+.scrollableDates {
+    flex: 1;
+    overflow-x: auto;
+    display: flex;
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE/Edge */
+}
+
+.scrollableDates::-webkit-scrollbar {
+    display: none;
+    /* Chrome/Safari */
+}
+
+/* Header dates - show scrollbar */
+.headerRow .scrollableDates {
+    scrollbar-width: thin;
+    -ms-overflow-style: auto;
+}
+
+.headerRow .scrollableDates::-webkit-scrollbar {
+    display: block;
+    height: 8px;
+}
+
+.headerRow .scrollableDates::-webkit-scrollbar-thumb {
     background: var(--border);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    width: max-content;
+    border-radius: 4px;
+}
+
+.headerRow .scrollableDates::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Dates flex container */
+.datesRow {
+    display: flex;
+    min-width: max-content;
+}
+
+/* Fixed right cell using sticky */
+.stickyRight {
+    position: sticky;
+    right: 0;
+    z-index: 10;
+    background: var(--bg-card);
+    flex-shrink: 0;
+    width: 120px;
+    border-left: 1px solid var(--border);
 }
 
 /* Header Cells */
 .headerCell {
     background: var(--bg-app);
-    padding: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
     text-align: center;
     font-size: 0.6875rem;
     font-weight: 500;
     color: var(--text-secondary);
-    position: sticky;
-    top: 0;
-    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
 }
 
 .staffHeader {
-    position: sticky;
-    left: 0;
-    z-index: 20;
-    text-align: left;
     padding-left: var(--spacing-md);
     font-size: 0.75rem;
+    justify-content: flex-start;
 }
 
 .dateHeader {
-    display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 1px;
     min-width: 44px;
+    padding: var(--spacing-xs);
 }
 
 .dateHeader.weekend {
-    background: rgba(239, 68, 68, 0.08);
+    background: rgba(239, 68, 68, 0.15);
 }
 
 .dateNum {
@@ -266,9 +354,6 @@
 }
 
 .statsHeader {
-    position: sticky;
-    right: 0;
-    z-index: 20;
     font-size: 0.75rem;
 }
 
@@ -279,10 +364,7 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
-    position: sticky;
-    left: 0;
-    z-index: 5;
-    min-width: 160px;
+    min-height: 40px;
 }
 
 .staffName {
@@ -311,6 +393,7 @@
     min-width: 44px;
     min-height: 36px;
     border-left: 3px solid transparent;
+    position: relative;
 }
 
 .shiftCell:hover {
@@ -362,6 +445,16 @@
 .shiftCode {
     font-size: 0.75rem;
     font-weight: 700;
+}
+
+.leaveIcon {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    color: #F59E0B;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Stats Cell */

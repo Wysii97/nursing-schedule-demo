@@ -9,15 +9,17 @@ import type { Staff, UnitRule } from '../../types';
 import styles from './PreLeave.module.css';
 
 const LEAVE_TYPE_MAP: Record<string, string> = {
-    rest: '預休',     // Pre-scheduled day off
-    swap: '換班',     // Shift swap request
-    other: '其他'     // Other reasons
+    preleave: '預假',      // Pre-scheduled day off (排班前申請)
+    annual: '特休',        // Annual leave
+    sick: '病假',          // Sick leave
+    personal: '事假',      // Personal leave
+    other: '其他'          // Other reasons
 };
 
 const PreLeave: React.FC = () => {
     const [currentMonth, setCurrentMonth] = useState(addMonths(new Date(), 1));
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-    const [leaveType, setLeaveType] = useState('rest');
+    const [leaveType, setLeaveType] = useState('preleave');
     const [reason, setReason] = useState('');
     const [submitting, setSubmitting] = useState(false);
 

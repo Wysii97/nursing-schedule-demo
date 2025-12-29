@@ -1,18 +1,18 @@
 
-import { format, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
+import { format, eachDayOfInterval } from 'date-fns';
 import { checkScheduleCompliance } from './scheduleValidation';
 import type { Staff } from '../types';
 
 export const generateAutoSchedule = (
     currentSchedule: Map<string, string>,
     staffList: Staff[],
-    monthDate: Date,
-    leaveRequests: any[] = []
+    periodStart: Date,
+    periodEnd: Date,
+    leaveRequests: any[] = [],
+    previousSchedule: Map<string, string> = new Map()  // Previous period's schedule for continuity
 ): { newSchedule: Map<string, string>; filledCount: number } => {
     const schedule = new Map(currentSchedule);
-    const monthStart = startOfMonth(monthDate);
-    const monthEnd = endOfMonth(monthDate);
-    const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+    const days = eachDayOfInterval({ start: periodStart, end: periodEnd });
     let filledCount = 0;
 
     // Daily Requirement Configuration (Can be dynamic in future)
@@ -80,7 +80,8 @@ export const generateAutoSchedule = (
 
                         // Reward: Continuity (same shift as yesterday is good for biological clock)
                         const yesterdayStr = format(new Date(day.getTime() - 86400000), 'yyyy-MM-dd');
-                        const yesterdayShift = schedule.get(`${s.id}-${yesterdayStr}`);
+                        // Check current schedule first, then fall back to previous schedule for cross-period continuity
+                        const yesterdayShift = schedule.get(`${s.id}-${yesterdayStr}`) || previousSchedule.get(`${s.id}-${yesterdayStr}`);
                         if (yesterdayShift === shiftType) score += 20;
 
                     }
@@ -102,6 +103,17 @@ export const generateAutoSchedule = (
                 } else {
                     break; // Cannot fill this slot without violation
                 }
+            }
+        });
+    });
+
+    // Final pass: Set all remaining unassigned cells to 'OFF'
+    days.forEach(day => {
+        const dateStr = format(day, 'yyyy-MM-dd');
+        staffList.forEach(s => {
+            const scheduleKey = `${s.id}-${dateStr}`;
+            if (!schedule.has(scheduleKey)) {
+                schedule.set(scheduleKey, 'OFF');
             }
         });
     });
