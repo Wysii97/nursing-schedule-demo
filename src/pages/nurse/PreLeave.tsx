@@ -26,6 +26,7 @@ const PreLeave: React.FC = () => {
     const [currentUser, setCurrentUser] = useState<Staff | null>(null);
     const [myRequests, setMyRequests] = useState<LeaveRequest[]>([]);
     const [allRequests, setAllRequests] = useState<LeaveRequest[]>([]);
+    const [staffList, setStaffList] = useState<Staff[]>([]);
     const [balance, setBalance] = useState<BalanceData | null>(null);
     const [rule, setRule] = useState<UnitRule | null>(null);
     const [loading, setLoading] = useState(true);
@@ -38,11 +39,14 @@ const PreLeave: React.FC = () => {
     const loadData = async () => {
         setLoading(true);
 
-        // First load user and rules
-        const [userRes, ruleRes] = await Promise.all([
+        // First load user, rules, and staff list
+        const [userRes, ruleRes, staffRes] = await Promise.all([
             staffApi.getCurrent(),
-            ruleApi.get()
+            ruleApi.get(),
+            staffApi.getAll()
         ]);
+
+        if (staffRes.success) setStaffList(staffRes.data);
 
         if (userRes.success) {
             setCurrentUser(userRes.data);
@@ -195,17 +199,23 @@ const PreLeave: React.FC = () => {
     // Build calendar day data from ALL requests (group view)
     const dayDataMap = new Map();
 
+    // Build staffMap for reliable name lookup
+    const staffMap = new Map(staffList.map(s => [s.id, s.name]));
+    const getStaffName = (staffId: string, fallback?: string) =>
+        staffMap.get(staffId) || fallback || staffId;
+
     // First, add other people's requests
     allRequests.forEach(req => {
         if (req.staffId === currentUser?.id) return; // Skip my own here, handle separately or merge
         const existing = dayDataMap.get(req.date) || { tags: [], tooltips: [] };
+        const staffName = getStaffName(req.staffId, req.staffName);
         // Group view: show how many people are off, or list names in tooltip
         existing.tags.push({
             type: 'group-leave',
-            label: req.staffName.charAt(0) // Show first char as minimal indicator
+            label: staffName.charAt(0) // Show first char as minimal indicator
         });
         existing.tooltips = existing.tooltips || [];
-        existing.tooltips.push(`${req.staffName}: ${req.leaveType}`);
+        existing.tooltips.push(`${staffName}: ${req.leaveType}`);
         dayDataMap.set(req.date, existing);
     });
 
@@ -225,6 +235,13 @@ const PreLeave: React.FC = () => {
     }
 
     const deadlinePassed = isDeadlinePassed();
+
+    // Dynamic preleave quota calculation
+    const preleaveQuotaTotal = rule?.maxLeavePerMonth || 8;
+    const usedPreleave = myRequests.filter(r =>
+        r.status === 'pending' || r.status === 'approved'
+    ).length;
+    const preleaveRemaining = Math.max(0, preleaveQuotaTotal - usedPreleave);
 
     return (
         <div className={styles.pageContainer}>
@@ -283,9 +300,9 @@ const PreLeave: React.FC = () => {
                             value={leaveType}
                             onChange={(e) => setLeaveType(e.target.value)}
                         >
-                            <option value="rest">預休</option>
-                            <option value="swap">換班</option>
-                            <option value="other">其他</option>
+                            {Object.entries(LEAVE_TYPE_MAP).map(([key, label]) => (
+                                <option key={key} value={key}>{label}</option>
+                            ))}
                         </select>
                     </div>
 
@@ -308,45 +325,34 @@ const PreLeave: React.FC = () => {
                     </button>
                 </div>
 
-                {/* Quota Summary */}
+                {/* Rules Card */}
                 <div className={styles.quotaCard}>
                     <div className={styles.quotaHeader}>
-                        <CalendarIcon size={16} />
-                        額度概覽
+                        📋 預假規範
                     </div>
-
-                    <div className={styles.quotaItem}>
-                        <div className={styles.quotaLabel}>
-                            <span>特休剩餘</span>
-                            <span className={styles.quotaValue}>{balance?.annualLeaveRemaining || 0} 天</span>
+                    <div className={styles.rulesList}>
+                        <div className={styles.ruleItem}>
+                            <span className={styles.ruleLabel}>開放月份</span>
+                            <span className={styles.ruleValue}>{rule?.preleaveOpenMonth || '未設定'}</span>
                         </div>
-                        <div className={styles.quotaBar}>
-                            <div
-                                className={styles.quotaProgress}
-                                style={{
-                                    width: `${((balance?.annualLeaveRemaining || 0) / (balance?.annualLeaveTotal || 14)) * 100}%`,
-                                    background: 'var(--primary)'
-                                }}
-                            />
+                        <div className={styles.ruleItem}>
+                            <span className={styles.ruleLabel}>截止日期</span>
+                            <span className={`${styles.ruleValue} ${deadlinePassed ? styles.expired : ''}`}>
+                                {rule?.preleaveDeadline || '未設定'}
+                                {deadlinePassed && ' (已截止)'}
+                            </span>
                         </div>
-                    </div>
-
-                    <div className={styles.quotaItem}>
-                        <div className={styles.quotaLabel}>
-                            <span>補休時數</span>
-                            <span className={styles.quotaValue}>{balance?.compensatoryHours || 0} 小時</span>
+                        <div className={styles.ruleItem}>
+                            <span className={styles.ruleLabel}>每日預假上限</span>
+                            <span className={styles.ruleValue}>{rule?.maxLeavePerDay || 2} 人</span>
                         </div>
-                        <div className={styles.quotaBar}>
-                            <div
-                                className={styles.quotaProgress}
-                                style={{
-                                    width: '60%',
-                                    background: 'var(--text-secondary)'
-                                }}
-                            />
+                        <div className={styles.ruleItem}>
+                            <span className={styles.ruleLabel}>每月預假額度</span>
+                            <span className={styles.ruleValue}>{rule?.maxLeavePerMonth || 8} 天</span>
                         </div>
                     </div>
                 </div>
+
             </div>
             {/* Request History */}
             <div className={styles.historySection}>

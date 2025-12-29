@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Edit2, Trash2, Save, X, Users } from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, X, Users, Key } from 'lucide-react';
 import { staffApi, managerUnitsApi, unitsApi } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import type { Staff, StaffLevel, UserRole } from '../../types';
@@ -138,6 +138,16 @@ const StaffManagement: React.FC = () => {
         }
     };
 
+    const handleResetPassword = async (id: string, name: string) => {
+        if (!window.confirm(`確定要重設 ${name} 的密碼嗎？\n用戶下次登入需重新設定密碼。`)) return;
+        const res = await staffApi.resetPassword(id);
+        if (res.success) {
+            alert('密碼已重設，用戶下次登入需設定新密碼');
+        } else {
+            alert('重設失敗：' + res.message);
+        }
+    };
+
     const getUnitName = (unitId: string) => {
         return availableUnits.find(u => u.id === unitId)?.name || unitId;
     };
@@ -190,6 +200,9 @@ const StaffManagement: React.FC = () => {
                                 <td className={styles.actions}>
                                     <button className={styles.editBtn} onClick={() => handleEdit(staff)} title="編輯">
                                         <Edit2 size={16} />
+                                    </button>
+                                    <button className={styles.editBtn} onClick={() => handleResetPassword(staff.id, staff.name)} title="重設密碼">
+                                        <Key size={16} />
                                     </button>
                                     <button className={styles.deleteBtn} onClick={() => setDeleteConfirm(staff.id)} title="刪除">
                                         <Trash2 size={16} />

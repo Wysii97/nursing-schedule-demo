@@ -1,0 +1,61 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.tabHeader {
+    display: flex;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-xl);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-card);
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border: none;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.tab:hover {
+    background: var(--bg-app);
+    color: var(--text-main);
+}
+
+.tab.active {
+    background: var(--primary);
+    color: white;
+}
+
+.tabContent {
+    flex: 1;
+    overflow: auto;
+}
+
+/* Remove padding from child pages since parent provides structure */
+.tabContent>div {
+    padding-top: 0 !important;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .tabHeader {
+        padding: var(--spacing-sm);
+    }
+
+    .tab {
+        flex: 1;
+        justify-content: center;
+        padding: var(--spacing-md);
+    }
+}

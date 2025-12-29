@@ -31,6 +31,8 @@ export interface Staff {
     departmentId: string;
     role: UserRole;
     managedUnits?: Unit[]; // For deputy/manager - units they can manage
+    passwordHash?: string | null;  // Hashed password (null = needs setup)
+    mustChangePassword?: boolean;  // Force password change on next login
 }
 
 export interface UnitRule {

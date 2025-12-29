@@ -134,6 +134,13 @@
     margin: 0 auto;
 }
 
+@media (max-width: 768px) {
+    .mainContent {
+        padding-bottom: calc(var(--spacing-xl) + 72px);
+        /* Space for bottom nav */
+    }
+}
+
 /* Dropdown Menu */
 .dropdown {
     position: relative;
@@ -322,6 +329,74 @@
     margin-top: 4px;
 }
 
+/* User Dropdown */
+.userDropdown {
+    position: relative;
+    cursor: pointer;
+}
+
+.userDropdown:hover .userDropdownMenu {
+    display: flex;
+}
+
+.userDropdownMenu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 160px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    flex-direction: column;
+    z-index: 100;
+    padding-top: var(--spacing-xs);
+}
+
+/* Bridge element to prevent hover gap */
+.userDropdownMenu::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 0;
+    right: 0;
+    height: 10px;
+}
+
+.userDropdownItem {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: background 0.15s;
+}
+
+.userDropdownItem:hover {
+    background: var(--bg-app);
+}
+
+.userDropdownLogout {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    border: none;
+    border-top: 1px solid var(--border);
+    background: transparent;
+    color: var(--error);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.userDropdownLogout:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
 /* Mobile Menu */
 .mobileMenuBtn {
     display: none;
@@ -409,4 +484,32 @@
     height: 1px;
     background: var(--border);
     margin: var(--spacing-sm) 0;
+}
+
+.mobileNavSection {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mobileLogoutBtn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    width: 100%;
+    padding: var(--spacing-md);
+    border: none;
+    background: transparent;
+    color: var(--error);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.mobileLogoutBtn:hover {
+    background: rgba(239, 68, 68, 0.1);
 }

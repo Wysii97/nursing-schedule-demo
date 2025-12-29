@@ -1,0 +1,283 @@
+.pageContainer {
+    padding: var(--spacing-xl);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.mainContent {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+}
+
+.pageHeader {
+    margin-bottom: var(--spacing-md);
+}
+
+.pageTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0 0 var(--spacing-xs) 0;
+}
+
+.pageSubtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.sectionTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0 0 var(--spacing-md) 0;
+}
+
+/* Quota Section */
+.quotaSection {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+}
+
+.quotaGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.quotaCard {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--bg-app);
+    border-radius: var(--radius-md);
+}
+
+.quotaIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.quotaInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.quotaLabel {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.quotaValue {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+/* Form Section */
+.formSection {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+}
+
+.formCard {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.formRow {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.formRow label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+.typeButtons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+
+.typeBtn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 0.875rem;
+}
+
+.typeBtn:hover {
+    border-color: var(--type-color, var(--primary));
+    color: var(--type-color, var(--primary));
+}
+
+.typeBtn.active {
+    background: var(--type-color, var(--primary));
+    border-color: var(--type-color, var(--primary));
+    color: white;
+}
+
+.dateInput,
+.textInput {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    background: var(--bg-card);
+    color: var(--text-main);
+}
+
+.dateInput:focus,
+.textInput:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.textInput {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.submitBtn {
+    padding: var(--spacing-md);
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.submitBtn:hover:not(:disabled) {
+    background: var(--primary-dark, #2563eb);
+}
+
+.submitBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* History Section */
+.historySection {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+}
+
+.historyTable {
+    overflow-x: auto;
+}
+
+.historyTable table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.historyTable th,
+.historyTable td {
+    padding: var(--spacing-md);
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.historyTable th {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+.historyTable td {
+    font-size: 0.875rem;
+    color: var(--text-main);
+}
+
+.emptyRow {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+}
+
+.leaveTag {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--primary);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.statusBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.statusBadge.pending {
+    background: rgba(245, 158, 11, 0.1);
+    color: #F59E0B;
+}
+
+.statusBadge.approved {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10B981;
+}
+
+.statusBadge.rejected {
+    background: rgba(239, 68, 68, 0.1);
+    color: #EF4444;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .pageContainer {
+        padding: var(--spacing-md);
+    }
+
+    .quotaGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .typeButtons {
+        flex-wrap: wrap;
+    }
+
+    .typeBtn {
+        flex: 1;
+        min-width: 80px;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .quotaGrid {
+        grid-template-columns: 1fr;
+    }
+}

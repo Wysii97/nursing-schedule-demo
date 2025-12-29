@@ -8,7 +8,7 @@ import styles from './Dashboard.module.css';
 
 const Dashboard: React.FC = () => {
     const navigate = useNavigate();
-    const { schedule, staff, getPendingCount, getTodayOnDuty, confirmationRate } = useScheduleStore();
+    const { schedule, staff, getPendingCount, getTodayOnDuty } = useScheduleStore();
     const [currentMonth, setCurrentMonth] = useState(new Date());
 
     const todayData = getTodayOnDuty();
@@ -104,7 +104,7 @@ const Dashboard: React.FC = () => {
                             <Calendar size={20} className={styles.iconBlue} />
                         </div>
                         <div className={styles.cardValue}>
-                            <span className={styles.bigNum}>{confirmationRate}%</span>
+                            <span className={styles.bigNum}>85%</span>
                             <span className={styles.subNum}>{format(new Date(), 'M月', { locale: zhTW })}</span>
                         </div>
                         <div className={styles.confirmBreakdown}>

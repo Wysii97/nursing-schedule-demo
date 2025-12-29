@@ -366,3 +366,36 @@
         min-height: 44px;
     }
 }
+
+/* Rules Card Styles */
+.rulesList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.ruleItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-xs) 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.ruleItem:last-child {
+    border-bottom: none;
+}
+
+.ruleLabel {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.ruleValue {
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+.ruleValue.expired {
+    color: var(--error);
+}

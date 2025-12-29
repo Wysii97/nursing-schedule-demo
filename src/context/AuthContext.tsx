@@ -12,6 +12,8 @@ interface AuthContextType {
     canManageMultipleUnits: boolean;
     availableUnits: Unit[];
     isLoading: boolean;
+    refreshUser: () => Promise<void>;
+    logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -86,10 +88,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     };
 
+    const refreshUser = async () => {
+        const res = await staffApi.getCurrent();
+        if (res.success) {
+            setCurrentUserState(res.data);
+        }
+    };
+
     const hasPermission = (permission: Permission): boolean => {
         if (!currentUser) return false;
         const permissions = ROLE_PERMISSIONS[currentUser.role] || [];
         return permissions.includes(permission);
+    };
+
+    const logout = () => {
+        setCurrentUserState(null);
+        setCurrentUnit(null);
+        setManagedUnitIds([]);
+        // Clear localStorage
+        localStorage.removeItem('nursing_notification_read_ids');
+        localStorage.removeItem('nursing_notification_cleared_ids');
     };
 
     // Available units: for manager/deputy use managed units, for nurse use their department
@@ -110,7 +128,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             hasPermission,
             canManageMultipleUnits,
             availableUnits,
-            isLoading
+            isLoading,
+            refreshUser,
+            logout
         }}>
             {children}
         </AuthContext.Provider>

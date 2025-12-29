@@ -2,11 +2,11 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { format } from 'date-fns';
 import { zhTW } from 'date-fns/locale';
 import { CheckCircle, XCircle, Clock, FileText, AlertCircle, Shuffle, Star, ChevronDown, ChevronUp, CheckSquare, Square } from 'lucide-react';
-import { leaveApi, ruleApi, staffApi } from '../../api/client';
+import { leaveApi, staffApi } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import { useScheduleStore } from '../../store/scheduleStore';
 import type { LeaveRequest } from '../../api/mockData';
-import type { UnitRule, Staff } from '../../types';
+import type { Staff } from '../../types';
 import styles from './LeaveApproval.module.css';
 
 interface DateGroup {
@@ -21,7 +21,7 @@ const LeaveApproval: React.FC = () => {
 
     const [requests, setRequests] = useState<LeaveRequest[]>([]);
     const [staffList, setStaffList] = useState<Staff[]>([]);
-    const [rule, setRule] = useState<UnitRule | null>(null);
+    // const [rule, setRule] = useState<UnitRule | null>(null); // Unused
     const [loading, setLoading] = useState(true);
     const [processing, setProcessing] = useState(false);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -37,12 +37,9 @@ const LeaveApproval: React.FC = () => {
     const loadData = async () => {
         setLoading(true);
 
-        const [ruleRes, staffRes] = await Promise.all([
-            ruleApi.get(currentUnit?.id),
-            staffApi.getAll(currentUnit?.id)
-        ]);
+        const staffRes = await staffApi.getAll(currentUnit?.id);
 
-        if (ruleRes.success) setRule(ruleRes.data);
+        // if (ruleRes.success) setRule(ruleRes.data); // Unused
         if (staffRes.success) setStaffList(staffRes.data);
 
         if (currentPeriod) {

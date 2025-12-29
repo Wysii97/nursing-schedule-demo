@@ -1,17 +1,18 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Plus, Bell, ChevronDown, AlertTriangle, ArrowRightLeft, Info, CheckCircle, XCircle, Menu, X } from 'lucide-react';
+import { Plus, Bell, ChevronDown, AlertTriangle, ArrowRightLeft, Info, CheckCircle, XCircle, Menu, X, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
 import { ROLE_LABELS } from '../../types';
 import UnitSelector from '../ui/UnitSelector';
 import RoleSwitcher from '../ui/RoleSwitcher';
+import BottomNav from './BottomNav';
 import styles from './Layout.module.css';
 
 const AppLayout: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { currentUser, hasPermission } = useAuth();
+    const { currentUser, hasPermission, logout } = useAuth();
     const { notifications, unreadCount, markAllAsRead } = useNotifications();
     const [showNotifications, setShowNotifications] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -41,11 +42,17 @@ const AppLayout: React.FC = () => {
                         </button>
                     </div>
                     <nav className={styles.mobileNav}>
+                        {/* Dashboard - only for managers */}
+                        {canAccessSettings && (
+                            <NavLink to="/dashboard" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>
+                                📊 儀表板
+                            </NavLink>
+                        )}
                         <NavLink to="/nurse/schedule" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>
                             📅 我的班表
                         </NavLink>
-                        <NavLink to="/nurse/preleave" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>
-                            📝 預假申請
+                        <NavLink to="/nurse/leave-all" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>
+                            📝 假別申請
                         </NavLink>
                         <NavLink to="/nurse/swap" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>
                             🔄 換班申請
@@ -53,17 +60,38 @@ const AppLayout: React.FC = () => {
                         {canAccessSettings && (
                             <>
                                 <div className={styles.mobileNavDivider} />
+                                <div className={styles.mobileNavSection}>管理</div>
                                 <NavLink to="/schedule/workbench" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>
                                     📋 排班工作台
                                 </NavLink>
                                 <NavLink to="/schedule/leave-approval" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>
                                     ✓ 預假審核
                                 </NavLink>
+                                <div className={styles.mobileNavDivider} />
+                                <div className={styles.mobileNavSection}>設定</div>
                                 <NavLink to="/settings/staff" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>
                                     👥 人員管理
                                 </NavLink>
+                                <NavLink to="/settings/rules" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>
+                                    📏 單位規則設定
+                                </NavLink>
+                                <NavLink to="/settings/shifts" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>
+                                    ⏰ 班別參數設定
+                                </NavLink>
                             </>
                         )}
+                        <div className={styles.mobileNavDivider} />
+                        <button
+                            className={styles.mobileLogoutBtn}
+                            onClick={() => {
+                                logout();
+                                setMobileMenuOpen(false);
+                                navigate('/login');
+                            }}
+                        >
+                            <LogOut size={18} />
+                            登出
+                        </button>
                     </nav>
                 </div>
             )}
@@ -104,12 +132,20 @@ const AppLayout: React.FC = () => {
                             我的班表
                         </NavLink>
 
-                        {/* 預假申請 - visible to all */}
+                        {/* 假別申請 - visible to all */}
                         <NavLink
-                            to="/nurse/preleave"
+                            to="/nurse/leave-all"
                             className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
                         >
-                            預假申請
+                            假別申請
+                        </NavLink>
+
+                        {/* 換班申請 - visible to all */}
+                        <NavLink
+                            to="/nurse/swap"
+                            className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
+                        >
+                            換班申請
                         </NavLink>
 
                         {/* 管理 - only for deputy and manager */}
@@ -197,15 +233,32 @@ const AppLayout: React.FC = () => {
                         )}
                     </div>
 
-                    {/* User Info */}
-                    <div className={styles.userInfo}>
-                        <div>
-                            <div className={styles.userName}>{currentUser?.name || '使用者'}</div>
-                            <div className={styles.userRole}>
-                                {currentUser ? ROLE_LABELS[currentUser.role] : ''} · {currentUser?.level}
+                    {/* User Info with Dropdown */}
+                    <div className={styles.userDropdown}>
+                        <div className={styles.userInfo}>
+                            <div>
+                                <div className={styles.userName}>{currentUser?.name || '使用者'}</div>
+                                <div className={styles.userRole}>
+                                    {currentUser ? ROLE_LABELS[currentUser.role] : ''} · {currentUser?.level}
+                                </div>
                             </div>
+                            <div className={styles.avatar}>{currentUser?.name?.charAt(0) || '?'}</div>
                         </div>
-                        <div className={styles.avatar}>{currentUser?.name?.charAt(0) || '?'}</div>
+                        <div className={styles.userDropdownMenu}>
+                            <NavLink to="/settings/profile" className={styles.userDropdownItem}>
+                                ⚙️ 個人設定
+                            </NavLink>
+                            <button
+                                className={styles.userDropdownLogout}
+                                onClick={() => {
+                                    logout();
+                                    navigate('/login');
+                                }}
+                            >
+                                <LogOut size={16} />
+                                登出
+                            </button>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -214,6 +267,9 @@ const AppLayout: React.FC = () => {
             <main className={styles.mainContent}>
                 <Outlet />
             </main>
+
+            {/* Mobile Bottom Navigation - for regular users */}
+            {!canAccessSettings && <BottomNav />}
 
             {/* Dev Role Switcher */}
             <RoleSwitcher />

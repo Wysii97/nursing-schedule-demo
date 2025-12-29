@@ -103,7 +103,7 @@ const Workbench: React.FC = () => {
             staffApi.getAll(currentUnit?.id),
             shiftApi.getAll(),
             staffApi.getExternal(currentUnit?.id),
-            scheduleApi.getByMonth(year, month),
+            scheduleApi.getByRange(periodStart, periodEnd),  // Use date range for full period
             leaveApi.getByRange(periodStart, periodEnd)  // Use range for period spans
         ]);
 

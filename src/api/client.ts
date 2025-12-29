@@ -217,7 +217,7 @@ export const ruleApi = {
         };
 
         // Use upsert to handle both insert and update cases
-        const { data, error } = await supabase
+        const { error } = await supabase
             .from('unit_rules')
             .upsert(dbPayload, { onConflict: 'unit_id' })
             .select();
@@ -453,6 +453,26 @@ export const scheduleApi = {
         return { success: true, message: '', data: mapped };
     },
 
+    getByRange: async (startDate: string, endDate: string): Promise<ApiResponse<ScheduleEntry[]>> => {
+        const { data, error } = await supabase
+            .from('schedules')
+            .select('*')
+            .gte('date', startDate)
+            .lte('date', endDate);
+
+        if (error) {
+            console.error('Error fetching schedule by range:', error);
+            return { success: false, message: error.message, data: [] };
+        }
+
+        const mapped: ScheduleEntry[] = data.map(item => ({
+            date: item.date,
+            staffId: item.staff_id,
+            shiftCode: item.shift_code
+        }));
+        return { success: true, message: '', data: mapped };
+    },
+
     getByStaff: async (staffId: string, year: number, month: number): Promise<ApiResponse<ScheduleEntry[]>> => {
         const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
         const nextMonth = month === 12 ? 1 : month + 1;
@@ -522,6 +542,29 @@ export const staffApi = {
             role: item.role as any,
         }));
         return { success: true, message: '', data: mapped };
+    },
+
+    getById: async (staffId: string): Promise<ApiResponse<Staff | null>> => {
+        const { data, error } = await supabase
+            .from('staff')
+            .select('*')
+            .eq('id', staffId)
+            .maybeSingle();
+
+        if (error) return { success: false, message: error.message, data: null };
+        if (!data) return { success: false, message: '員工不存在', data: null };
+
+        return {
+            success: true, message: '', data: {
+                id: data.id,
+                name: data.name,
+                level: data.level,
+                departmentId: data.department_id,
+                role: data.role as any,
+                passwordHash: data.password_hash,
+                mustChangePassword: data.must_change_password
+            }
+        };
     },
 
     getCurrent: async (): Promise<ApiResponse<Staff>> => {
@@ -654,25 +697,90 @@ export const staffApi = {
         if (error) return { success: false, message: error.message, data: undefined };
 
         return { success: true, message: '人員已刪除', data: undefined };
+    },
+
+    // Set password (hash it before storing)
+    setPassword: async (staffId: string, password: string): Promise<ApiResponse<void>> => {
+        // Simple hash for demo (in production, use bcrypt on server)
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const passwordHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+        const { error } = await supabase
+            .from('staff')
+            .update({
+                password_hash: passwordHash,
+                must_change_password: false
+            })
+            .eq('id', staffId);
+
+        if (error) return { success: false, message: error.message, data: undefined };
+        return { success: true, message: '密碼已設定', data: undefined };
+    },
+
+    // Reset password (admin action - clears password, forces user to set new one)
+    resetPassword: async (staffId: string): Promise<ApiResponse<void>> => {
+        const { error } = await supabase
+            .from('staff')
+            .update({
+                password_hash: null,
+                must_change_password: true
+            })
+            .eq('id', staffId);
+
+        if (error) return { success: false, message: error.message, data: undefined };
+        return { success: true, message: '密碼已重設，用戶需重新設定', data: undefined };
+    },
+
+    // Verify password
+    verifyPassword: async (staffId: string, password: string): Promise<ApiResponse<boolean>> => {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const passwordHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+        const { data: staff, error } = await supabase
+            .from('staff')
+            .select('password_hash')
+            .eq('id', staffId)
+            .single();
+
+        if (error) return { success: false, message: error.message, data: false };
+
+        const isValid = staff.password_hash === passwordHash;
+        return { success: true, message: '', data: isValid };
     }
 };
 
 export const balanceApi = {
     get: async (staffId: string): Promise<ApiResponse<BalanceData>> => {
+        const defaultBalance: BalanceData = {
+            annualLeaveRemaining: 8,
+            annualLeaveTotal: 8,
+            compensatoryHours: 0,
+            debtHours: 0
+        };
+
         const { data, error } = await supabase
             .from('staff_balances')
             .select('*')
             .eq('staff_id', staffId)
-            .single();
+            .maybeSingle();
 
-        if (error) return { success: false, message: error.message, data: { annualLeaveRemaining: 0, annualLeaveTotal: 0, compensatoryHours: 0, debtHours: 0 } };
+        // Return default if no data or error
+        if (error || !data) {
+            return { success: true, message: '', data: defaultBalance };
+        }
 
         return {
             success: true, message: '', data: {
-                annualLeaveRemaining: Number(data.annual_leave_remaining),
-                annualLeaveTotal: Number(data.annual_leave_total),
-                compensatoryHours: Number(data.compensatory_hours),
-                debtHours: Number(data.debt_hours)
+                annualLeaveRemaining: Number(data.annual_leave_remaining) || defaultBalance.annualLeaveRemaining,
+                annualLeaveTotal: Number(data.annual_leave_total) || defaultBalance.annualLeaveTotal,
+                compensatoryHours: Number(data.compensatory_hours) || 0,
+                debtHours: Number(data.debt_hours) || 0
             }
         };
     }

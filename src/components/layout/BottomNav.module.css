@@ -1,0 +1,138 @@
+.bottomNav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 100;
+}
+
+@media (max-width: 768px) {
+    .bottomNav {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+}
+
+.navItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex: 1;
+    height: 100%;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.15s;
+}
+
+.navItem:hover,
+.navItem.active {
+    color: var(--primary);
+}
+
+/* More Menu Overlay */
+.moreOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 200;
+    display: flex;
+    align-items: flex-end;
+}
+
+.moreMenu {
+    width: 100%;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding-bottom: env(safe-area-inset-bottom);
+    animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+.moreHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.moreHeader button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xs);
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.moreItem {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    transition: background 0.15s;
+}
+
+.moreItem:hover {
+    background: var(--bg-app);
+}
+
+.badge {
+    margin-left: auto;
+    padding: 2px 8px;
+    background: var(--error);
+    color: white;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.logoutItem {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    width: 100%;
+    padding: var(--spacing-lg);
+    border: none;
+    border-top: 1px solid var(--border);
+    background: transparent;
+    color: var(--error);
+    font-size: 0.9375rem;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.logoutItem:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
