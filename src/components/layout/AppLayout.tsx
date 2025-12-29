@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
 import { ROLE_LABELS } from '../../types';
 import UnitSelector from '../ui/UnitSelector';
-import RoleSwitcher from '../ui/RoleSwitcher';
+
 import BottomNav from './BottomNav';
 import styles from './Layout.module.css';
 
@@ -271,8 +271,7 @@ const AppLayout: React.FC = () => {
             {/* Mobile Bottom Navigation - for regular users */}
             {!canAccessSettings && <BottomNav />}
 
-            {/* Dev Role Switcher */}
-            <RoleSwitcher />
+
         </div>
     );
 };

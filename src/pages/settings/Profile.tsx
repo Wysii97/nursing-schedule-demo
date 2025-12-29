@@ -1,15 +1,36 @@
-import React, { useState } from 'react';
-import { User, Bell, Lock, Save } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { User, Bell, Lock, Save, UserCog } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { staffApi } from '../../api/client';
 import { ROLE_LABELS } from '../../types';
+import type { Staff } from '../../types';
 import styles from './Profile.module.css';
 
 const Profile: React.FC = () => {
-    const { currentUser } = useAuth();
+    const { currentUser, setCurrentUser } = useAuth();
     const [notifySchedule, setNotifySchedule] = useState(true);
     const [notifyLeave, setNotifyLeave] = useState(true);
     const [notifySwap, setNotifySwap] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [staffList, setStaffList] = useState<Staff[]>([]);
+
+    useEffect(() => {
+        const loadStaff = async () => {
+            const res = await staffApi.getAll();
+            if (res.success) {
+                setStaffList(res.data);
+            }
+        };
+        loadStaff();
+    }, []);
+
+    // Group staff by role
+    const roleRepresentatives = staffList.reduce((acc, staff) => {
+        if (!acc.find(s => s.role === staff.role)) {
+            acc.push(staff);
+        }
+        return acc;
+    }, [] as Staff[]);
 
     const handleSave = () => {
         setSaving(true);
@@ -118,6 +139,26 @@ const Profile: React.FC = () => {
                     </button>
                 </div>
 
+                {/* DEV Role Switcher */}
+                <div className={styles.section}>
+                    <div className={styles.sectionHeader}>
+                        <UserCog size={20} />
+                        <h2>DEV 角色切換</h2>
+                    </div>
+                    <p className={styles.devNote}>開發測試用 - 模擬切換不同角色</p>
+                    <div className={styles.roleButtons}>
+                        {roleRepresentatives.map(user => (
+                            <button
+                                key={user.id}
+                                className={`${styles.roleBtn} ${currentUser?.id === user.id ? styles.activeRole : ''}`}
+                                onClick={() => setCurrentUser(user)}
+                            >
+                                {ROLE_LABELS[user.role]} ({user.name})
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
                 {/* Save Button */}
                 <button
                     className={styles.saveBtn}
@@ -133,3 +174,4 @@ const Profile: React.FC = () => {
 };
 
 export default Profile;
+

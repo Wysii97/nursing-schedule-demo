@@ -198,3 +198,38 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* DEV Role Switcher */
+.devNote {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin: 0 0 var(--spacing-md) 0;
+}
+
+.roleButtons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+
+.roleBtn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--bg-app);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.roleBtn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.activeRole {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}

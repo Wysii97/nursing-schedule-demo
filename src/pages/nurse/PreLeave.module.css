@@ -306,7 +306,13 @@
     .pageContainer {
         grid-template-columns: 1fr;
         gap: var(--spacing-sm);
-        padding: var(--spacing-sm);
+        padding: 0;
+        overflow-x: hidden;
+        max-width: 100vw;
+    }
+
+    .mainContent {
+        overflow-x: hidden;
     }
 
     .sidebar {
@@ -331,18 +337,25 @@
         grid-template-columns: 1fr;
     }
 
+    .historySection {
+        overflow-x: hidden;
+        padding: 0 var(--spacing-sm);
+    }
+
     .historyTable {
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .historyTable table {
-        min-width: 500px;
+        min-width: 400px;
     }
 
     .historyTable th,
     .historyTable td {
         padding: var(--spacing-sm) var(--spacing-md);
         font-size: 0.8125rem;
+        white-space: nowrap;
     }
 }
 
