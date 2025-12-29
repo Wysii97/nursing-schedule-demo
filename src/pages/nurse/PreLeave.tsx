@@ -241,7 +241,8 @@ const PreLeave: React.FC = () => {
     const usedPreleave = myRequests.filter(r =>
         r.status === 'pending' || r.status === 'approved'
     ).length;
-    const preleaveRemaining = Math.max(0, preleaveQuotaTotal - usedPreleave);
+    // preleaveRemaining can be used for UI display if needed
+    void (preleaveQuotaTotal - usedPreleave);
 
     return (
         <div className={styles.pageContainer}>

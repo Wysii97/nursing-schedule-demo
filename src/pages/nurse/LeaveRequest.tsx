@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { format } from 'date-fns';
-import { zhTW } from 'date-fns/locale';
+
 import { Calendar as CalendarIcon, CheckCircle, XCircle, Clock, FileText } from 'lucide-react';
 import { leaveApi, staffApi, balanceApi } from '../../api/client';
 import type { LeaveRequest as LeaveRequestType, BalanceData } from '../../api/mockData';
